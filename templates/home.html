@@ -19,6 +19,8 @@
             <a href="{{ url_for('download_resume', resume_id=resume.id) }}">Download</a>
             <form action="{{ url_for('delete_resume', resume_id=resume.id) }}" method="post" style="display:inline;">
                 <button type="submit">Delete</button>
+                <p><strong>Extracted Text:</strong></p>
+                    <pre>{{ resume.extracted_text }}</pre>
             </form>
         </li>
         {% endfor %}

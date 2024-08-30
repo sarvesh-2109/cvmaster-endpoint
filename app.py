@@ -3,37 +3,36 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from io import BytesIO
 import os
+from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 
-# Initialize Flask application
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")  # Set a secret key for session management
+app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 
-# Configure the SQLite database
+# Initialize the database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resume.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
-# Define the Resume model
-class Resume(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(128), nullable=False)
-    data = db.Column(db.LargeBinary, nullable=False)
-
-
-# Allowed file extensions
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 
 
 def allowed_file(filename):
-    """Check if the file has an allowed extension."""
+    """Check if the file is allowed based on its extension."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/home', methods=['GET', 'POST'])
+# Define the Resume model with an additional column for extracted text
+class Resume(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(128), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    extracted_text = db.Column(db.Text, nullable=True)  # New column for extracted text
+
+
+@app.route('/', methods=['GET', 'POST'])
 async def home():
-    """Handle resume upload and display all resumes."""
+    """Handle resume upload and display all resumes with their extracted text."""
     if request.method == 'POST':
         if 'file' not in request.files:
             return redirect(request.url)
@@ -41,10 +40,20 @@ async def home():
         if file.filename == '':
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            # Read the file content
-            file_data = file.read()
-            # Save the file content to the database
-            new_resume = Resume(filename=file.filename, data=file_data)
+            # Extract text from the file
+            file_stream = BytesIO(file.read())
+            if file.filename.lower().endswith('.pdf'):
+                extracted_text = await get_pdf_text(file_stream)
+            elif file.filename.lower().endswith('.docx'):
+                extracted_text = await get_docx_text(file_stream)
+            else:
+                return redirect(request.url)
+
+            # Preprocess the extracted text
+            preprocessed_text = preprocess_text(extracted_text)
+
+            # Save the resume and extracted text to the database
+            new_resume = Resume(filename=file.filename, data=file_stream.getvalue(), extracted_text=preprocessed_text)
             db.session.add(new_resume)
             db.session.commit()
 
@@ -54,8 +63,8 @@ async def home():
 
 
 @app.route('/view_resume/<int:resume_id>')
-async def view_resume(resume_id):
-    """Stream the resume file without downloading."""
+def view_resume(resume_id):
+    """View a resume file."""
     resume = Resume.query.get_or_404(resume_id)
     return send_file(
         BytesIO(resume.data),
@@ -66,9 +75,9 @@ async def view_resume(resume_id):
     )
 
 
-@app.route('/download_res/<int:resume_id>')
-async def download_resume(resume_id):
-    """Provide the resume file for download."""
+@app.route('/download_resume/<int:resume_id>')
+def download_resume(resume_id):
+    """Download a resume file."""
     resume = Resume.query.get_or_404(resume_id)
     return send_file(
         BytesIO(resume.data),
@@ -79,18 +88,12 @@ async def download_resume(resume_id):
     )
 
 
-@app.route('/delete_res/<int:resume_id>', methods=['POST'])
-async def delete_resume(resume_id):
-    """Delete a specific resume from the database."""
+@app.route('/delete_resume/<int:resume_id>', methods=['POST'])
+def delete_resume(resume_id):
+    """Delete a resume from the database."""
     resume = Resume.query.get_or_404(resume_id)
     db.session.delete(resume)
     db.session.commit()
-    return redirect(url_for('home'))
-
-
-@app.route('/')
-def index():
-    """Render the home page."""
     return redirect(url_for('home'))
 
 
