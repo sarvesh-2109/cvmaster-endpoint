@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Upload</title>
+</head>
+<body>
+    <h1>Upload Resume</h1>
+    <form action="{{ url_for('home') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <input type="submit" value="Upload">
+    </form>
+
+    <h2>Resumes</h2>
+    <ul>
+        {% for resume in resumes %}
+        <li>
+            {{ resume.filename }}
+            <a href="{{ url_for('view_resume', resume_id=resume.id) }}" target="_blank">View</a>
+            <a href="{{ url_for('download_resume', resume_id=resume.id) }}">Download</a>
+            <form action="{{ url_for('delete_resume', resume_id=resume.id) }}" method="post" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
