@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from io import BytesIO
 import os
 from text_extraction import get_pdf_text, get_docx_text, preprocess_text
+from roast import generate_roast
+
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -28,19 +30,20 @@ class Resume(db.Model):
     filename = db.Column(db.String(128), nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
     extracted_text = db.Column(db.Text, nullable=True)  # New column for extracted text
+    candidate_name = db.Column(db.String(128), nullable=False)  # New column for candidate name
 
 
 @app.route('/', methods=['GET', 'POST'])
 async def home():
-    """Handle resume upload and display all resumes with their extracted text."""
     if request.method == 'POST':
         if 'file' not in request.files:
             return redirect(request.url)
         file = request.files['file']
-        if file.filename == '':
+        candidate_name = request.form.get('candidate_name', 'Candidate')
+        if file.filename == '' or candidate_name == '':
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            # Extract text from the file
+            # Extract and preprocess text
             file_stream = BytesIO(file.read())
             if file.filename.lower().endswith('.pdf'):
                 extracted_text = await get_pdf_text(file_stream)
@@ -49,15 +52,17 @@ async def home():
             else:
                 return redirect(request.url)
 
-            # Preprocess the extracted text
             preprocessed_text = preprocess_text(extracted_text)
 
-            # Save the resume and extracted text to the database
-            new_resume = Resume(filename=file.filename, data=file_stream.getvalue(), extracted_text=preprocessed_text)
+            # Save to database
+            new_resume = Resume(filename=file.filename, data=file_stream.getvalue(),
+                                extracted_text=preprocessed_text, candidate_name=candidate_name)
             db.session.add(new_resume)
             db.session.commit()
 
-    # Fetch all resumes from the database
+            return redirect(url_for('home'))
+
+    # GET request: display upload form and existing resumes
     resumes = Resume.query.all()
     return render_template('home.html', resumes=resumes)
 
@@ -95,6 +100,14 @@ def delete_resume(resume_id):
     db.session.delete(resume)
     db.session.commit()
     return redirect(url_for('home'))
+
+
+@app.route('/roast/<int:resume_id>')
+async def roast_resume(resume_id):
+    resume = Resume.query.get_or_404(resume_id)
+    roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
+    return render_template('roast.html', roast_response=roast_response,
+                           candidate_name=resume.candidate_name, resume_filename=resume.filename)
 
 
 if __name__ == '__main__':
