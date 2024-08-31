@@ -59,6 +59,7 @@
         <div id="analysis-result" class="analysis-result hidden">
             <!-- Analysis result will be inserted here -->
         </div>
+        <a href="{{ url_for('home') }}">Back to Home</a>
     </div>
     <script>
         document.body.addEventListener('htmx:afterSwap', function(event) {
@@ -68,5 +69,6 @@
             }
         });
     </script>
+
 </body>
 </html>

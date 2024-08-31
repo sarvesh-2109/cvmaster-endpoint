@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_file,
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from io import BytesIO
+from markupsafe import Markup
 import os
 from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 from roast import generate_roast
@@ -155,10 +156,11 @@ async def ats_analysis(resume_id=None):
         resume = Resume.query.get_or_404(resume_id)
         analysis = await generate_ats_analysis(resume.extracted_text, job_description)
 
-        return f"""
+        safe_analysis = Markup(f"""
         <h2 class="text-xl font-semibold mb-2">Analysis Results for {resume.candidate_name}</h2>
         <pre class="whitespace-pre-wrap">{analysis}</pre>
-        """
+        """)
+        return safe_analysis
 
 
 if __name__ == '__main__':

@@ -37,22 +37,38 @@ async def create_in_memory_faiss_index(text_chunks):
 
 
 async def get_ats_chain(job_description):
-    prompt_template = f"""As a witty and slightly sarcastic Applicant Tracking System (ATS) with expertise across various fields including tech, software engineering, data science, data analysis, and big data engineering, evaluate the given resume based on the following job description:
+    prompt_template = f"""As serious and insightful Applicant Tracking System (ATS) with expertise across various 
+    fields evaluate the given resume based on the following job description:
 
-Job Description: {{job_description}}
+    Job Description: {{job_description}}
 
-Resume: {{context}}
+    Resume: {{context}}
 
-Provide a comprehensive analysis of the resume, including:
-1. An overall match percentage between the resume and the job description, with a dash of humor.
-2. A list of key skills or qualifications mentioned in the job description that are missing from the resume, delivered with a touch of playful sarcasm.
-3. A brief, slightly cheeky profile summary of the candidate based on their resume.
-4. Specific suggestions for improving the resume to better match the job requirements, presented with a mix of constructive criticism and witty observations.
-5. Any standout qualifications or experiences in the resume that are particularly relevant to the position, with a sprinkle of amusing commentary.
+    Provide a comprehensive analysis of the resume, addressing it directly to the candidate in the first person. 
+    Include the following:
+    1. An overall match percentage between the resume and the job description.
+    2. A list of key skills or qualifications mentioned in the job description that are missing from the resume. 
+    3. Specific, actionable suggestions for improving the resume to better match the job requirements. 
+    Provide examples where possible to help the candidate understand how to implement your suggestions.
+    4. Highlight any standout qualifications or experiences in the resume that are particularly relevant to the position. 
+    Explain how these can be leveraged or expanded upon.
+    5. Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world 
+    problem-solving projects that could help bridge any skill gaps. Provide short descriptions of these projects and 
+    explain how they relate to the desired skills.
+    6. Suggest how the candidate can acquire or demonstrate the missing skills in a short period of time.
+    Be specific and practical in your advice.
+    Remember, you are a professional resume expert here. The goal is to provide constructive and supportive feedback 
+    that will genuinely help the candidate improve their resume and chances of landing the job.
+    
+    Format the analysis using the following HTML tags:
+    - <ul> for unordered lists
+    - <li> for list items
+    - <b> for emphasis on key terms or achievements
+    - <i> for any technical terms or job titles
 
-Remember, while we're having fun, we're still professionals here. Keep it light, but don't roast them to a crisp. We want them to improve, not cry into their cereal bowl.
+    Sign of your analysis with a motivational call-to-action, encouraging the candidate to revamp their resume based 
+    on your feedback.
 
-Present your analysis in a clear, engaging manner using simple text format. Avoid using markdown or complex formatting, but feel free to use creative language and metaphors to make your points.
 """
 
     model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.7)
@@ -63,7 +79,8 @@ Present your analysis in a clear, engaging manner using simple text format. Avoi
 async def generate_ats_analysis(resume_text, job_description):
     text_chunks = await get_text_chunks(resume_text)
     if not text_chunks:
-        return "Error: The resume is empty or could not be processed. Did you accidentally submit a blank page? Even our AI needs something to work with!"
+        return "Error: The resume is empty or could not be processed. Did you accidentally submit a blank page? Even " \
+               "our AI needs something to work with!"
 
     try:
         vector_store = await create_in_memory_faiss_index(text_chunks)
