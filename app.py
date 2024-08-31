@@ -5,7 +5,7 @@ from io import BytesIO
 import os
 from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 from roast import generate_roast
-
+from feedback import generate_feedback
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -107,6 +107,14 @@ async def roast_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
     return render_template('roast.html', roast_response=roast_response,
+                           candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+
+@app.route('/feedback/<int:resume_id>')
+async def feedback_resume(resume_id):
+    resume = Resume.query.get_or_404(resume_id)
+    feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
+    return render_template('feedback.html', feedback_response=feedback_response,
                            candidate_name=resume.candidate_name, resume_filename=resume.filename)
 
 
