@@ -50,8 +50,9 @@ async def get_feedback_chain(candidate_name):
     such as <h2> for headings, <h3> for subheadings, <p> for paragraphs, <br> for line breaks, <b> for bold, 
     and <i> for italic. Use numbered lists or <li> tags for pointers if necessary. Before ending the feedback, based 
     on the {candidate_name}'s project and skills recommend some impactful and real-world problem-solving projects. 
-    End the feedback with a harsh sarcastic line, forcing {candidate_name} to revamp their resume. 
-    Sign off the feedback creatively with the name CV Toaster.
+    Also provide the user with Areas for improvement End the feedback with a harsh sarcastic line, 
+    forcing {candidate_name} to revamp their resume.
+    Sign off the feedback creatively with the name CV Toaster on a new line.
 
     Context:\n {{context}}
 
