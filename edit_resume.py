@@ -1,6 +1,7 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain.schema.runnable import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
@@ -8,9 +9,7 @@ import os
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-
-async def generate_improved_content(content):
-    prompt_template = """You are an expert resume builder tasked with improving and reformatting the given content to 
+prompt_template = """You are an expert resume builder tasked with improving and reformatting the given content to 
     make it more impactful and suitable for a resume. Your goal is to enhance the content's effectiveness while 
     maintaining its core message.
 
@@ -22,9 +21,9 @@ async def generate_improved_content(content):
     While rewriting, avoid clichés and generic statements; aim for unique and specific content.
     Rewrite in an industry-appropriate and professional language.
     Whilst rewriting maintain a balance between being concise and providing enough detail to showcase expertise.
-    
+
     At the end add "Additional Points" where provide examples of sentence(s) that will quantify the achievements.
-    
+
 
     Format the output using the following HTML tags:
     - <ul> for unordered lists
@@ -38,10 +37,18 @@ async def generate_improved_content(content):
     Please provide the improved version:
     """
 
-    prompt = PromptTemplate(template=prompt_template, input_variables=["content"])
+prompt = PromptTemplate.from_template(prompt_template)
 
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=1)
-    chain = LLMChain(llm=model, prompt=prompt)
+model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=1)
 
-    response = await chain.arun(content=content)
+chain = (
+        {"content": RunnablePassthrough()}
+        | prompt
+        | model
+        | StrOutputParser()
+)
+
+
+def generate_improved_content(content: str) -> str:
+    response = chain.invoke(content)
     return response.strip()

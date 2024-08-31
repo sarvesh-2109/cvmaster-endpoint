@@ -131,7 +131,7 @@ async def improve_content():
     if not content:
         return jsonify({'error': 'No content provided'}), 400
 
-    improved_content = await generate_improved_content(content)
+    improved_content = generate_improved_content(content)
     return jsonify({'improved_content': improved_content})
 
 
