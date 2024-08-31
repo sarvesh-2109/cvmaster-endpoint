@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from io import BytesIO
@@ -6,6 +6,7 @@ import os
 from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 from roast import generate_roast
 from feedback import generate_feedback
+from edit_resume import generate_improved_content
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -116,6 +117,22 @@ async def feedback_resume(resume_id):
     feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
     return render_template('feedback.html', feedback_response=feedback_response,
                            candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+
+@app.route('/edit_resume/<int:resume_id>')
+def edit_resume(resume_id):
+    resume = Resume.query.get_or_404(resume_id)
+    return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name)
+
+
+@app.route('/api/improve_content', methods=['POST'])
+async def improve_content():
+    content = request.json.get('content')
+    if not content:
+        return jsonify({'error': 'No content provided'}), 400
+
+    improved_content = await generate_improved_content(content)
+    return jsonify({'improved_content': improved_content})
 
 
 if __name__ == '__main__':
