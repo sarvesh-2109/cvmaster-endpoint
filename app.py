@@ -7,6 +7,7 @@ from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 from roast import generate_roast
 from feedback import generate_feedback
 from edit_resume import generate_improved_content
+from ats import generate_ats_analysis
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -133,6 +134,31 @@ async def improve_content():
 
     improved_content = generate_improved_content(content)
     return jsonify({'improved_content': improved_content})
+
+
+@app.route('/ats_analysis', methods=['GET', 'POST'])
+@app.route('/ats_analysis/<int:resume_id>', methods=['GET'])
+async def ats_analysis(resume_id=None):
+    if request.method == 'GET':
+        resumes = Resume.query.all()
+        selected_resume = None
+        if resume_id:
+            selected_resume = Resume.query.get_or_404(resume_id)
+        return render_template('ats.html', resumes=resumes, selected_resume=selected_resume)
+    elif request.method == 'POST':
+        resume_id = request.form.get('resume_id')
+        job_description = request.form.get('job_description')
+
+        if not resume_id or not job_description:
+            return "Come on, don't leave me hanging! Please provide both a resume and a job description.", 400
+
+        resume = Resume.query.get_or_404(resume_id)
+        analysis = await generate_ats_analysis(resume.extracted_text, job_description)
+
+        return f"""
+        <h2 class="text-xl font-semibold mb-2">Analysis Results for {resume.candidate_name}</h2>
+        <pre class="whitespace-pre-wrap">{analysis}</pre>
+        """
 
 
 if __name__ == '__main__':
