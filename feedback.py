@@ -52,13 +52,13 @@ async def get_feedback_chain(candidate_name):
     on the {candidate_name}'s project and skills recommend some impactful and real-world problem-solving projects. 
     Also provide the user with Areas for improvement End the feedback with a harsh sarcastic line, 
     forcing {candidate_name} to revamp their resume.
-    Sign off the feedback creatively with the name CV Toaster on a new line.
+    Sign off the feedback creatively with the name CvMaster on a new line.
 
     Context:\n {{context}}
 
     Resume:
     """
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.7)
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=1)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
