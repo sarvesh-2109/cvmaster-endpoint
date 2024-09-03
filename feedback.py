@@ -38,21 +38,69 @@ async def create_in_memory_faiss_index(text_chunks):
 
 
 async def get_feedback_chain(candidate_name):
-    prompt_template = f"""Alright, I need you to provide constructive and serious feedback on the following 
-    resume belonging to {candidate_name}. Address it directly to {candidate_name} in the first person. Start with 
-    {candidate_name}, . Focus on providing actionable and specific feedback on the Projects, Skills, 
-    Experience, and Extracurricular sections. While providing feedback also, provide examples so that {candidate_name}
-    can easily understand. Ignore the Header (Introduction section) and the Education section. 
-    Your feedback should help {candidate_name} improve their resume by highlighting areas for improvement and 
-    suggesting ways to enhance the content. Avoid being overly harsh or sarcastic; the goal is to be constructive 
-    and supportive. Do not comment on the formatting or the use of a formal resume template. Make sure the 
-    response is not in markdown format (i.e., no use of ## for headings or ** for bold). Instead, use HTML tags 
-    such as <h2> for headings, <h3> for subheadings, <p> for paragraphs, <br> for line breaks, <b> for bold, 
-    and <i> for italic. Use numbered lists or <li> tags for pointers if necessary. Before ending the feedback, based 
-    on the {candidate_name}'s project and skills recommend some impactful and real-world problem-solving projects. 
-    Also provide the user with Areas for improvement End the feedback with a harsh sarcastic line, 
-    forcing {candidate_name} to revamp their resume.
-    Sign off the feedback creatively with the name CvMaster on a new line.
+    prompt_template = f"""When provided with a resume belonging to {candidate_name}, generate constructive and serious feedback addressing the following points:
+
+    Use HTML tags for formatting instead of markdown. Specifically:
+    
+    Use <h2> for main headings
+    Use <h3> for subheadings
+    Use <p> for paragraphs
+    Use <br> for line breaks
+    Use <b> for bold text
+    Use <i> for italic text
+    Use <ol> for numbered lists and <li> for list items
+    Use <ul> for unordered lists and <li> for list items
+    
+    1. Begin the response with "{candidate_name}," and address them directly in the first person throughout the feedback.
+    
+    2. Focus on providing actionable and specific feedback for the following sections:
+    <h2>Projects</h2>
+    <h2>Skills</h2>
+    <h2>Experience</h2>
+    <h2>Extracurricular Activities</h2>
+    
+    3. For each section, offer detailed suggestions and include specific examples to illustrate your points, ensuring {candidate_name} can easily understand and implement the feedback.
+    
+    4. Projects section:
+       a. Comment on all the projects individually.
+       b. If a project is well-presented, offer genuine appreciation.
+       c. Suggest improvements or expansions where applicable.
+       d. Comment on each project individually. Use a <br> tag after each project title. For example:</p>
+       <p><b>Project Title</b><br>
+       Your feedback here...</p>
+       If a project is well-presented, offer genuine appreciation. Suggest improvements or expansions where applicable.
+    
+    5. Skills section:
+       a. Evaluate the relevance and presentation of listed skills.
+       b. Either group the technical skills by category / type or by proficiency level and provide an example.
+       c. Recommend additional skills that could enhance the resume, if appropriate.
+       d. Also evaluate and recommend soft skill if any.
+    
+    6. Experience section:
+       a. If {candidate_name} has work experience, provide feedback on how to better highlight achievements and responsibilities.
+       b. If {candidate_name} has no experience:
+          i. Suggest an alternative section to replace "Experience" (e.g., "Relevant Coursework" or "Academic Achievements").
+          ii. Provide specific suggestions on how {candidate_name} can gain relevant experience (e.g., internships, volunteer work, personal projects).
+    
+    7. Extracurricular activities:
+       a. Comment on the relevance and presentation of listed activities.
+       b. Suggest ways to better highlight leadership roles or transferable skills gained from these activities.
+    
+    8. Do not comment on the Header (Introduction section) or the Education section.
+    
+    9. Based on {candidate_name}'s projects and skills, recommend 2-3 impactful and real-world problem-solving projects that could enhance their resume.
+    
+    10. Provide a concise list of 3-5 key areas for improvement, summarizing the main points of your feedback.
+        Do consider suggesting the removal any unnecessary details form the resume if needed.
+    
+    11. Maintain a constructive and supportive tone throughout the feedback, avoiding overly harsh criticism.
+    
+    12. Conclude the feedback with a single, sarcastic line that encourages {candidate_name} to revamp their resume. 
+        This line should be noticeably different in tone from the rest of the feedback.
+    
+    13. Sign off the feedback with "CvMaster" on a new line, using a creative or witty closing phrase.
+    
+    14. Do not comment on the formatting or the use of a formal resume template.
 
     Context:\n {{context}}
 
