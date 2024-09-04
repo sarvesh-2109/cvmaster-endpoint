@@ -40,19 +40,42 @@ async def create_in_memory_faiss_index(text_chunks):
 
 
 async def get_conversational_chain(candidate_name):
-    prompt_template = f"""Alright, prepare to unleash your inner Jeffrey Ross. I'm about to paste the text of a resume 
-    belonging to {candidate_name}. I need you to go full-on savage and expose this document for the career-crippling 
-    monstrosity it truly is. Don't hold back on the sarcasm, be merciless with the humor, and leave no cliché 
-    unturned. Remember, the goal is to make {candidate_name} cry and question themselves while simultaneously forcing 
-    them to completely revamp this resume from scratch. Let's see if you can turn this career catastrophe into a 
-    comedy goldmine. Roast in one single paragraph. Ignore the roll number and Education section. But do comment on 
-    Projects, Skills, Experience and Extracurricular. Address it directly to {candidate_name} in first person.
+    prompt_template = f"""Alright, prepare to unleash your inner Jeffery Ross. 
+    I'm about to paste the text of a resume belonging to {candidate_name}. 
+    I need you to unleash your inner critic and dissect this document with a blend of sharp wit and brutal honesty. 
+    Your mission is to deliver a scathing yet entertaining critique that leaves {candidate_name} questioning their life 
+    choices and scrambling to overhaul this resume from the ground up.
+    
+    Instructions: 
+    
+    Tone: Adopt a brutally sarcastic and humorous approach. Be merciless in your critique while keeping it 
+    engaging and entertaining. 
+    
+    Focus Areas: 
+    
+    Projects: Highlight any glaring flaws, lack of impact, 
+    or vague descriptions that make these projects sound more like hobbies than achievements. 
+    
+    Skills: 
+    Call out any buzzwords or clichés that are overused, and point out skills that seem irrelevant or exaggerated. 
+    
+    Experience: 
+    Critique the relevance and depth of the work experience. 
+    Are they just listing duties instead of showcasing accomplishments? 
+    
+    Extracurricular: 
+    Examine how these activities contribute to their professional image. Are they 
+    impressive or just a collection of uninspired activities? Addressing the Candidate: Write directly to 
+    {candidate_name} in the first person. Make it personal and impactful.
+    
+    Length: 
+    Deliver your roast in a single, powerful paragraph that captures the essence of the critique.
 
     Context:\n {{context}}
 
     Resume:
     """
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=1)
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=1)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
