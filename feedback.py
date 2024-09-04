@@ -106,7 +106,7 @@ async def get_feedback_chain(candidate_name):
 
     Resume:
     """
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=1)
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-exp-0827", temperature=1)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
