@@ -57,6 +57,7 @@ async def get_ats_chain(job_description):
     explain how they relate to the desired skills.
     6. Suggest how the candidate can acquire or demonstrate the missing skills in a short period of time.
     Be specific and practical in your advice.
+    7. Suggest the keywords that the cadidate should add in their resume based on the job description to enhance the chances to get hired.
     Remember, you are a professional resume expert here. The goal is to provide constructive and supportive feedback 
     that will genuinely help the candidate improve their resume and chances of landing the job.
     
