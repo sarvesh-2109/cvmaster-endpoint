@@ -39,7 +39,7 @@ prompt_template = """You are an expert resume builder tasked with improving and 
 
 prompt = PromptTemplate.from_template(prompt_template)
 
-model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-exp-0827", temperature=0.7)
 
 chain = (
         {"content": RunnablePassthrough()}
