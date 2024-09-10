@@ -7,6 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
+        @media screen and (max-width: 600px) {
+        .analysis-result {
+            padding: 15px;
+            margin-top: 15px;
+            }
+            .analysis-result h2 {
+                font-size: 1.2rem;
+            }
+            .analysis-result pre {
+                font-size: 0.8rem;
+            }
+        }
+
         .analysis-result {
             background-color: #f0f4f8;
             border-radius: 8px;
@@ -14,15 +27,17 @@
             margin-top: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .analysis-result h2 {
             color: #2c3e50;
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
+
         .analysis-result pre {
             white-space: pre-wrap;
             word-wrap: break-word;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: Arial, sans-serif;
             font-size: 0.9rem;
             line-height: 1.6;
         }
