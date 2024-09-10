@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from io import BytesIO
@@ -34,6 +34,7 @@ class Resume(db.Model):
     data = db.Column(db.LargeBinary, nullable=False)
     extracted_text = db.Column(db.Text, nullable=True)  # New column for extracted text
     candidate_name = db.Column(db.String(128), nullable=False)  # New column for candidate name
+    roast_response = db.Column(db.Text, nullable=True)  # New column for roast response
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -105,12 +106,34 @@ def delete_resume(resume_id):
     return redirect(url_for('home'))
 
 
-@app.route('/roast/<int:resume_id>')
+@app.route('/roast/<int:resume_id>', methods=['GET', 'POST'])
 async def roast_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
-    roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
-    return render_template('roast.html', roast_response=roast_response,
-                           candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'regenerate':
+            roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
+            return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
+                                   resume_filename=resume.filename)
+
+        elif action == 'save':
+            roast_response = request.form.get('roast_response')
+            resume.roast_response = roast_response  # Save the roast response
+            db.session.commit()
+            flash('Roast saved successfully!', 'success')  # Add a success flash message
+            return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
+                                   resume_filename=resume.filename)
+
+        elif action == 'back_to_home':
+            return redirect(url_for('home'))
+
+    # GET request: generate roast response
+    roast_response = resume.roast_response if resume.roast_response else await generate_roast(resume.extracted_text,
+                                                                                              resume.candidate_name)
+    return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
+                           resume_filename=resume.filename)
 
 
 @app.route('/feedback/<int:resume_id>')

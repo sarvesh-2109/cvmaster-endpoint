@@ -43,6 +43,19 @@
     <div class="roast-container">
         <p class="roast-text">{{ roast_response }}</p>
     </div>
-    <a href="{{ url_for('home') }}" class="back-link">Back to Home</a>
+    <form method="POST">
+        <input type="hidden" name="roast_response" value="{{ roast_response }}">
+        <button type="submit" name="action" value="regenerate">Regenerate Response</button>
+        <button type="submit" name="action" value="save">Save Response</button>
+        <a href="{{ url_for('home') }}" class="back-link">Back to Home</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </form>
+
 </body>
 </html>
