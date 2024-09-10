@@ -96,18 +96,16 @@ async def get_feedback_chain(candidate_name):
     
     11. Maintain a constructive and supportive tone throughout the feedback, avoiding overly harsh criticism.
     
-    12. Conclude the feedback with a single, sarcastic line that encourages {candidate_name} to revamp their resume. 
+    12. <br>Conclude the feedback with a single, sarcastic line that encourages {candidate_name} to revamp their resume. 
         This line should be noticeably different in tone from the rest of the feedback.
     
-    13. Sign off the feedback with "CvMaster" on a new line, using a creative or witty closing phrase.
-    
-    14. Do not comment on the formatting or the use of a formal resume template.
+    13. Do not comment on the formatting or the use of a formal resume template.
 
     Context:\n {{context}}
 
     Resume:
     """
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-exp-0827", temperature=1)
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=1)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
