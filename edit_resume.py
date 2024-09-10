@@ -17,13 +17,17 @@ prompt_template = """You are an expert resume builder tasked with improving and 
     Summarize the input content.
     If the summarized content is in a paragraph, convert the summarized content into concise, impactful bullet points.
     If the summarized content is in points or short sentences, improve each point to make it more compelling.
+    Don't give the summarized points in the final response.
     Rewrite the sentence using actionable and impactful points. Make use strong action verbs and quantifiable achievements.
     While rewriting, avoid clichés and generic statements; aim for unique and specific content.
     Rewrite in an industry-appropriate and professional language.
     Whilst rewriting maintain a balance between being concise and providing enough detail to showcase expertise.
-
-    At the end add "Additional Points" where provide examples of sentence(s) that will quantify the achievements.
-
+    
+    The final response should only contain:
+    Append the rewritten points under "<h2><b>Improved Point(s):</b></h2>". 
+    At the end add "<h2><b>Additional Points:</b></h2>" where provide examples of sentence(s) that will quantify the achievements and use variables instead of numbers.
+    Make the keywords or phrases bold by using the <b> tag.
+    
 
     Format the output using the following HTML tags:
     - <ul> for unordered lists
@@ -39,7 +43,7 @@ prompt_template = """You are an expert resume builder tasked with improving and 
 
 prompt = PromptTemplate.from_template(prompt_template)
 
-model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-exp-0827", temperature=0.7)
+model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
 
 chain = (
         {"content": RunnablePassthrough()}
