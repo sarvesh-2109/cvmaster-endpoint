@@ -35,6 +35,7 @@ class Resume(db.Model):
     extracted_text = db.Column(db.Text, nullable=True)  # New column for extracted text
     candidate_name = db.Column(db.String(128), nullable=False)  # New column for candidate name
     roast_response = db.Column(db.Text, nullable=True)  # New column for roast response
+    feedback_response = db.Column(db.Text, nullable=True)  # New column for feedback response
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -136,12 +137,30 @@ async def roast_resume(resume_id):
                            resume_filename=resume.filename)
 
 
-@app.route('/feedback/<int:resume_id>')
+@app.route('/feedback/<int:resume_id>', methods=['GET', 'POST'])
 async def feedback_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
-    feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
-    return render_template('feedback.html', feedback_response=feedback_response,
-                           candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'regenerate':
+            feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
+            return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+        elif action == 'save':
+            feedback_response = request.form.get('feedback_response')
+            resume.feedback_response = feedback_response  # Save the feedback response
+            db.session.commit()
+            flash('Feedback saved successfully!', 'success')  # Add a success flash message
+            return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
+
+        elif action == 'back_to_home':
+            return redirect(url_for('home'))
+
+    # GET request: generate feedback response
+    feedback_response = resume.feedback_response if resume.feedback_response else await generate_feedback(resume.extracted_text, resume.candidate_name)
+    return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
 
 
 @app.route('/edit_resume/<int:resume_id>')
