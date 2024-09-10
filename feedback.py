@@ -12,6 +12,11 @@ load_dotenv()
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
+FAISS_INDEX_DIR = "faiss_indices"
+
+# Ensure the directory exists
+os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
+
 
 def remove_duplicate_lines(text):
     lines = text.split("\n")
@@ -29,12 +34,23 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
-async def create_in_memory_faiss_index(text_chunks):
+async def create_faiss_index(text_chunks, index_name):
     if not text_chunks:
         raise ValueError("The text chunks are empty. Cannot create a vector store.")
+
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+
+    # Save the FAISS index
+    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+    vector_store.save_local(index_path)
+
     return vector_store
+
+
+async def load_faiss_index(index_name, embeddings):
+    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+    return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
 
 async def get_feedback_chain(candidate_name):
@@ -114,13 +130,19 @@ async def generate_feedback(resume_text, candidate_name):
     text_chunks = await get_text_chunks(resume_text)
     if not text_chunks:
         return "Error: The document is empty or could not be processed."
+
     try:
-        vector_store = await create_in_memory_faiss_index(text_chunks)
+        # Create and save the FAISS index
+        vector_store = await create_faiss_index(text_chunks, "feedback_index")
     except ValueError as e:
         return str(e)
+
     docs = vector_store.similarity_search(resume_text)
+
     chain = await get_feedback_chain(candidate_name)
     response = chain.invoke({"input_documents": docs, "context": resume_text})
+
     feedback_response = response["output_text"].replace("*", "\"")
     feedback_response = remove_duplicate_lines(feedback_response)
+
     return feedback_response

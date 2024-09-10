@@ -9,7 +9,13 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+FAISS_INDEX_DIR = "faiss_indices"
+
+# Ensure the directory exists
+os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
 
 
 def remove_duplicate_lines(text):
@@ -28,12 +34,23 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
-async def create_in_memory_faiss_index(text_chunks):
+async def create_faiss_index(text_chunks, index_name):
     if not text_chunks:
         raise ValueError("The text chunks are empty. Cannot create a vector store.")
+
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+
+    # Save the FAISS index
+    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+    vector_store.save_local(index_path)
+
     return vector_store
+
+
+async def load_faiss_index(index_name, embeddings):
+    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+    return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
 
 async def get_ats_chain(job_description):
@@ -110,7 +127,7 @@ async def get_ats_chain(job_description):
 
     """
 
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.7)
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
     prompt = PromptTemplate(template=prompt_template, input_variables=["job_description", "context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
@@ -122,7 +139,8 @@ async def generate_ats_analysis(resume_text, job_description):
                "our AI needs something to work with!"
 
     try:
-        vector_store = await create_in_memory_faiss_index(text_chunks)
+        # Create and save the FAISS index
+        vector_store = await create_faiss_index(text_chunks, "ats_index")
     except ValueError as e:
         return f"Oops! {str(e)} It seems your resume is playing hide and seek, and winning."
 
