@@ -37,42 +37,80 @@ async def create_in_memory_faiss_index(text_chunks):
 
 
 async def get_ats_chain(job_description):
-    prompt_template = f"""As serious and insightful Applicant Tracking System (ATS) with expertise across various 
-    fields evaluate the given resume based on the following job description:
+    prompt_template = f"""
+    As a highly sophisticated and insightful Applicant Tracking System (ATS) with extensive expertise across various professional fields, your task is to thoroughly evaluate the given resume based on the following job description:
 
-    Job Description: {{job_description}}
+    Job Description:
+    {job_description}
 
-    Resume: {{context}}
+    Resume:
+    {{context}}
 
-    Provide a comprehensive analysis of the resume, addressing it directly to the candidate in the first person. 
-    Include the following:
-    1. An overall match percentage between the resume and the job description.
-    2. A list of key skills or qualifications mentioned in the job description that are missing from the resume. 
-    3. Specific, actionable suggestions for improving the resume to better match the job requirements. 
-    Provide examples where possible to help the candidate understand how to implement your suggestions.
-    4. Highlight any standout qualifications or experiences in the resume that are particularly relevant to the position. 
-    Explain how these can be leveraged or expanded upon.
-    5. Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world 
-    problem-solving projects that could help bridge any skill gaps. Provide short descriptions of these projects and 
-    explain how they relate to the desired skills.
-    6. Suggest how the candidate can acquire or demonstrate the missing skills in a short period of time.
-    Be specific and practical in your advice.
-    7. Suggest the keywords that the cadidate should add in their resume based on the job description to enhance the chances to get hired.
-    Remember, you are a professional resume expert here. The goal is to provide constructive and supportive feedback 
-    that will genuinely help the candidate improve their resume and chances of landing the job.
-    
-    Format the analysis using the following HTML tags:
-    - <ul> for unordered lists
-    - <li> for list items
-    - <b> for emphasis on key terms or achievements
-    - <i> for any technical terms or job titles
+    Please ensure to use HTML tags for formatting the response strictly as follows:
+    <h2> for main headings
+    <h3> for subheadings
+    <p> for paragraphs
+    <br> for line breaks
+    <b> for bold text
+    <i> for italic text
+    <ol> for numbered lists and <li> for list items
+    <ul> for unordered lists and <li> for list items
 
-    Sign of your analysis with a motivational call-to-action, encouraging the candidate to revamp their resume based 
-    on your feedback.
+    Provide a comprehensive, detailed analysis of the resume, addressing the candidate directly in the first person throughout your evaluation. Your analysis should include the following sections:
 
-"""
+    <h2><b>1. Overall Match Assessment</b></h2>
+    <p>Calculate and present an overall match percentage between the resume and the job description. Explain the key factors contributing to this percentage.</p>
 
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro-exp-0827", temperature=0.7)
+    <h2><b>2. Skills Gap Analysis</b></h2>
+    <p>Create a detailed list of key skills or qualifications mentioned in the job description that are missing from the resume. For each missing skill:</p>
+    <ul>
+    <li>Explain its importance to the role</li>
+    <li>Suggest how the candidate might acquire or demonstrate this skill</li>
+    </ul>
+
+    <h2><b>3. Resume Improvement Suggestions</b></h2>
+    <p>Offer specific, actionable suggestions for improving the resume to better align with the job requirements. For each suggestion:</p>
+    <ul>
+    <li><b>Provide a clear rationale</li>
+    <li>Include an example of how to implement the suggestion</li>
+    <li>Explain how this change will positively impact the resume's effectiveness</li>
+    </ul>
+
+    <h2><b>4. Standout Qualifications</b></h2>
+    <p>Highlight and analyze any standout qualifications or experiences in the resume that are particularly relevant to the position. For each standout item:</p>
+    <ul>
+    <li>Explain its relevance to the job description</li>
+    <li>Suggest how to further leverage or expand upon this qualification</li>
+    <li>If applicable, recommend how to better present this information in the resume</li>
+    </ul>
+
+    <h2><b>5. Recommended Projects</b></h2>
+    <p>Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world problem-solving projects that could help bridge any skill gaps. For each project:</p>
+    <ul>
+    <li>Provide a short, but detailed description</li>
+    <li>Explain how it relates to the desired skills</li>
+    <li>Outline the potential impact on the candidate's qualifications</li>
+    </ul>
+
+    <h2><b>6. Skill Acquisition Strategy</b></h2>
+    <p>Develop a targeted strategy for the candidate to acquire or demonstrate the missing skills in a short period. This strategy should:</p>
+    <ul>
+    <li>Be specific and practical</li>
+    <li>Include a mix of short-term and long-term actions</li>
+    <li>Prioritize skills based on their importance to the job description</li>
+    <li>Suggest relevant courses, certifications, or hands-on experiences</li>
+    </ul>
+
+    <h2><b>7. Summary</b></h2>
+    <p>Provide a concise list of 3-5 key areas for improvement, summarizing the main points of your feedback.</p>
+
+    Remember, as a professional resume expert, your goal is to provide constructive, supportive, and actionable feedback that will genuinely help the candidate improve their resume and significantly enhance their chances of securing the job. Maintain a balance between honesty and encouragement throughout your analysis.
+
+    Sign off the feedback with "CvMaster" on a new line, using a creative or witty closing phrase.
+
+    """
+
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.7)
     prompt = PromptTemplate(template=prompt_template, input_variables=["job_description", "context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
