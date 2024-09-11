@@ -9,8 +9,10 @@ from roast import generate_roast
 from feedback import generate_feedback
 from edit_resume import generate_improved_content
 from ats import generate_ats_analysis
+from api.routes import api_bp
 
 app = Flask(__name__)
+app.register_blueprint(api_bp)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 
 # Initialize the database connection
