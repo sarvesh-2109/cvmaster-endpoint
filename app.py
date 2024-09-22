@@ -9,10 +9,9 @@ from roast import generate_roast
 from feedback import generate_feedback
 from edit_resume import generate_improved_content
 from ats import generate_ats_analysis
-from api.routes import api_bp
+from cover_letter import generate_cover_letter
 
 app = Flask(__name__)
-app.register_blueprint(api_bp)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 
 # Initialize the database connection
@@ -205,6 +204,33 @@ async def ats_analysis(resume_id=None):
         <pre class="whitespace-pre-wrap">{analysis}</pre>
         """)
         return safe_analysis
+
+
+@app.route('/cover_letter', methods=['GET'])
+def cover_letter_form():
+    resumes = Resume.query.all()
+    return render_template('cover_letter.html', resumes=resumes)
+
+
+@app.route('/generate_cover_letter', methods=['POST'])
+async def generate_cover_letter_route():
+    resume_id = request.form.get('resume_id')
+    job_description = request.form.get('job_description')
+    company_name = request.form.get('company_name')
+    position_name = request.form.get('position_name')
+    recipient_name = request.form.get('recipient_name')
+
+    resume = Resume.query.get_or_404(resume_id)
+
+    cover_letter = await generate_cover_letter(
+        resume.extracted_text,
+        job_description,
+        company_name,
+        position_name,
+        recipient_name
+    )
+
+    return cover_letter
 
 
 if __name__ == '__main__':

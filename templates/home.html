@@ -9,26 +9,22 @@
 <body class="bg-gray-100 p-8">
     <div class="max-w-2xl mx-auto bg-white p-8 rounded shadow-md">
         <h1 class="text-3xl font-bold mb-6">CvMaster</h1>
-
         <form method="POST" enctype="multipart/form-data" class="mb-8">
             <div class="mb-4">
-                <input type="file" name="file" accept=".pdf,.docx" class="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100
-                ">
+                <input type="file" name="file" accept=".pdf,.docx" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             </div>
             <div class="mb-4">
-                <input type="text" name="candidate_name" placeholder="Candidate Name" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <input type="text" name="candidate_name" placeholder="Candidate Name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Upload
             </button>
         </form>
-
+        <div class="mb-8 space-x-4">
+            <a href="{{ url_for('cover_letter_form') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Generate Cover Letter
+            </a>
+        </div>
         <h2 class="text-2xl font-bold mb-4">Uploaded Resumes</h2>
         <ul class="space-y-4">
             {% for resume in resumes %}
@@ -41,7 +37,7 @@
                         <a href="{{ url_for('roast_resume', resume_id=resume.id) }}" class="text-orange-600 hover:text-orange-800">Roast</a>
                         <a href="{{ url_for('feedback_resume', resume_id=resume.id) }}" class="text-purple-600 hover:text-purple-800">Feedback</a>
                         <a href="{{ url_for('edit_resume', resume_id=resume.id) }}" class="text-indigo-600 hover:text-indigo-800">Edit</a>
-                        <a href="{{ url_for('ats_analysis', resume_id=resume.id) }}" class="text-purple-600 hover:text-purple-800">ATS</a>
+                        <a href="{{ url_for('ats_analysis', resume_id=resume.id) }}" class="text-pink-600 hover:text-pink-800">ATS</a>
                         <form method="POST" action="{{ url_for('delete_resume', resume_id=resume.id) }}" class="inline">
                             <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
                         </form>
