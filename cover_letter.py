@@ -42,7 +42,8 @@ async def load_faiss_index(index_name):
 
 async def get_cover_letter_chain():
     prompt_template = """
-    As an expert career coach, your task is to create a compelling cover letter for a job application. Use the provided resume content and job description to tailor the letter specifically to the position and company.
+    As an expert career coach, your task is to create a compelling cover letter for a job application. 
+    Use the provided resume content and job description to tailor the letter specifically to the position and company.
 
     Resume Content:
     {context}
@@ -53,17 +54,27 @@ async def get_cover_letter_chain():
     Company Name: {company_name}
     Position: {position_name}
     Recipient: {recipient_name}
+    
+    Use HTML tags for formatting instead of markdown. Specifically:
+    
+    Use <p> for paragraphs
+    Use <br> for line breaks
+    Use <b> for bold text
+    Use <i> for italic text
+    Use <ol> for numbered lists and <li> for list items
+    Use <ul> for unordered lists and <li> for list items
 
     Please write a professional and engaging cover letter that:
     1. Addresses the recipient by name
     2. Expresses enthusiasm for the position and company
-    3. Highlights key qualifications and experiences from the resume that align with the job requirements
+    3. Highlights key qualifications and experiences from the resume that align with the job requirements.
     4. Demonstrates knowledge of the company and industry
     5. Explains why the applicant would be a great fit for the role
     6. Includes a call to action for next steps
     7. Closes with a professional sign-off
 
-    The cover letter should be concise, engaging, and tailored to the specific job and company. Aim for about 3-4 paragraphs.
+    The cover letter should be concise, engaging, and tailored to the specific job and company. 
+    Aim for about 3-4 paragraphs. Keep space between paragraphs
 
     Cover Letter:
     """
