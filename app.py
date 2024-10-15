@@ -221,13 +221,15 @@ async def generate_cover_letter_route():
     recipient_name = request.form.get('recipient_name')
 
     resume = Resume.query.get_or_404(resume_id)
+    candidate_name = resume.candidate_name
 
     cover_letter = await generate_cover_letter(
         resume.extracted_text,
         job_description,
         company_name,
         position_name,
-        recipient_name
+        recipient_name,
+        candidate_name
     )
 
     return cover_letter

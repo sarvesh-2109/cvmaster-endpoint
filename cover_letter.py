@@ -54,6 +54,7 @@ async def get_cover_letter_chain():
     Company Name: {company_name}
     Position: {position_name}
     Recipient: {recipient_name}
+    Candidate Name: {candidate_name}
     
     Use HTML tags for formatting instead of markdown. Specifically:
     
@@ -75,6 +76,8 @@ async def get_cover_letter_chain():
 
     The cover letter should be concise, engaging, and tailored to the specific job and company. 
     Aim for about 3-4 paragraphs. Keep space between paragraphs
+    
+    Make sure to sign off the letter with the candidate's name: {candidate_name}
 
     Cover Letter:
     """
@@ -82,11 +85,11 @@ async def get_cover_letter_chain():
     model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
     prompt = PromptTemplate(template=prompt_template,
                             input_variables=["context", "job_description", "company_name", "position_name",
-                                             "recipient_name"])
+                                             "recipient_name", "candidate_name"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
 
-async def generate_cover_letter(resume_text, job_description, company_name, position_name, recipient_name):
+async def generate_cover_letter(resume_text, job_description, company_name, position_name, recipient_name, candidate_name):
     # Create or load the FAISS index for the resume
     resume_chunks = await get_text_chunks(resume_text)
     try:
@@ -105,6 +108,7 @@ async def generate_cover_letter(resume_text, job_description, company_name, posi
         "company_name": company_name,
         "position_name": position_name,
         "recipient_name": recipient_name,
+        "candidate_name": candidate_name,
         "context": resume_text
     })
 
