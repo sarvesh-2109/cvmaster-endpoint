@@ -25,15 +25,13 @@
             </div>
         </div>
     </div>
-
     <script>
         document.getElementById('regenerate').addEventListener('click', function() {
             const content = document.getElementById('content').value;
             const resultDiv = document.getElementById('result');
-
             resultDiv.innerHTML = '<p class="text-gray-500">Generating improved content...</p>';
 
-            fetch('/api/improve_content', {
+            fetch('/edit_resume/{{ resume_id }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,6 +48,6 @@
             });
         });
     </script>
-<a href="{{ url_for('home') }}">Back to Home</a>
+    <a href="{{ url_for('home') }}" class="mt-4 inline-block text-blue-500 hover:text-blue-700">Back to Home</a>
 </body>
 </html>

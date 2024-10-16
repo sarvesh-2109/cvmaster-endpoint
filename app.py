@@ -147,37 +147,41 @@ async def feedback_resume(resume_id):
 
         if action == 'regenerate':
             feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
-            return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
+            return render_template('feedback.html', feedback_response=feedback_response,
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename)
 
         elif action == 'save':
             feedback_response = request.form.get('feedback_response')
             resume.feedback_response = feedback_response  # Save the feedback response
             db.session.commit()
             flash('Feedback saved successfully!', 'success')  # Add a success flash message
-            return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
+            return render_template('feedback.html', feedback_response=feedback_response,
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename)
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
 
     # GET request: generate feedback response
-    feedback_response = resume.feedback_response if resume.feedback_response else await generate_feedback(resume.extracted_text, resume.candidate_name)
-    return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name, resume_filename=resume.filename)
+    feedback_response = resume.feedback_response if resume.feedback_response else await generate_feedback(
+        resume.extracted_text, resume.candidate_name)
+    return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name,
+                           resume_filename=resume.filename)
 
 
-@app.route('/edit_resume/<int:resume_id>')
-def edit_resume(resume_id):
+@app.route('/edit_resume/<int:resume_id>', methods=['GET', 'POST'])
+async def edit_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
-    return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name)
 
+    if request.method == 'GET':
+        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name)
 
-@app.route('/api/improve_content', methods=['POST'])
-async def improve_content():
-    content = request.json.get('content')
-    if not content:
-        return jsonify({'error': 'No content provided'}), 400
+    elif request.method == 'POST':
+        content = request.json.get('content')
+        if not content:
+            return jsonify({'error': 'No content provided'}), 400
 
-    improved_content = generate_improved_content(content)
-    return jsonify({'improved_content': improved_content})
+        improved_content = generate_improved_content(content)
+        return jsonify({'improved_content': improved_content})
 
 
 @app.route('/ats_analysis', methods=['GET', 'POST'])
