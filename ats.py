@@ -102,7 +102,7 @@ async def get_ats_chain(job_description):
     </ul>
 
     <h2><b>5. Recommended Projects</b></h2>
-    <p>Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world problem-solving projects that could help bridge any skill gaps. For each project:</p>
+    <p>Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world problem-solving portfolio projects that could help bridge any skill gaps. For each project:</p>
     <ul>
     <li>Provide a short, but detailed description</li>
     <li>Explain how it relates to the desired skills</li>
@@ -123,7 +123,7 @@ async def get_ats_chain(job_description):
 
     Remember, as a professional resume expert, your goal is to provide constructive, supportive, and actionable feedback that will genuinely help the candidate improve their resume and significantly enhance their chances of securing the job. Maintain a balance between honesty and encouragement throughout your analysis.
 
-    Sign off the feedback with "CvMaster" on a new line, using a creative or witty closing phrase.
+    End the analysis on a new line, using a creative or witty closing phrase.
 
     """
 

@@ -68,7 +68,7 @@ async def get_cover_letter_chain():
     Please write a professional and engaging cover letter that:
     1. Addresses the recipient by name
     2. Expresses enthusiasm for the position and company
-    3. Highlights key qualifications and experiences from the resume that align with the job requirements.
+    3. Highlights key qualifications and experiences from the resume that align with the job requirements in bullet points.
     4. Demonstrates knowledge of the company and industry
     5. Explains why the applicant would be a great fit for the role
     6. Includes a call to action for next steps
