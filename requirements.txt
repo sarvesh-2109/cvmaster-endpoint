@@ -5,8 +5,8 @@ langchain-google-genai==1.0.7
 google-auth==2.31.0
 google-api-core==2.19.1
 google-api-python-client==2.136.0
-langchain==0.2.6
-langchain-community==0.2.6
+langchain==0.3.7
+langchain-community==0.3.1
 langchain-core==0.2.11
 langchain-text-splitters==0.2.2
 langsmith==0.1.83
@@ -15,5 +15,10 @@ python-docx==1.1.2
 python-dotenv==1.0.1
 requests==2.32.3
 faiss-cpu==1.8.0.post1
-gunicorn==21.2.0
+gunicorn==22.0.0
 MarkupSafe==2.1.5
+Flask-JWT-Extended==4.7.0
+pdfplumber==0.11.4
+werkzeug==3.0.4
+marshmallow==3.22.0
+SQLAlchemy==2.0.32

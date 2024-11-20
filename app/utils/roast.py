@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-FAISS_INDEX_DIR = "faiss_indices"
+FAISS_INDEX_DIR = "../faiss_indices"
 
 # Ensure the directory exists
 os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
