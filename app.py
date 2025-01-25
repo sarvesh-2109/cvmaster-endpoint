@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 
 # Initialize the database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resume.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/dbname'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
