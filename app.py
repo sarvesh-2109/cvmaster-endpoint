@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_mail import Mail, Message
+import random
+import string
 from io import BytesIO
 from markupsafe import Markup
 import os
@@ -29,6 +32,16 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USERNAME', 'cvmaster.in@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('EMAIL_SENDER', 'cvmaster.in@gmail.com')
+mail = Mail(app)
 
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 
@@ -164,6 +177,120 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('landing'))
+
+
+def send_email(subject, recipients, body):
+    try:
+        msg = Message(subject,
+                      recipients=recipients,
+                      body=body,
+                      sender=app.config['MAIL_DEFAULT_SENDER'])
+
+        # Additional logging for debugging
+        app.logger.info(f"Attempting to send email:")
+        app.logger.info(f"Subject: {subject}")
+        app.logger.info(f"Recipients: {recipients}")
+        app.logger.info(f"Sender: {app.config['MAIL_DEFAULT_SENDER']}")
+
+        mail.send(msg)
+        app.logger.info("Email sent successfully")
+        return True
+    except Exception as e:
+        # More detailed error logging
+        app.logger.error(f"Email sending failed: {str(e)}")
+        app.logger.error(f"SMTP Configuration:")
+        app.logger.error(f"MAIL_SERVER: {app.config['MAIL_SERVER']}")
+        app.logger.error(f"MAIL_PORT: {app.config['MAIL_PORT']}")
+        app.logger.error(f"MAIL_USE_TLS: {app.config['MAIL_USE_TLS']}")
+        app.logger.error(f"MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
+
+        return False
+
+
+# Modify the reset_password route to use the new send_email function
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            otp = ''.join(random.choices(string.digits, k=6))
+            session['otp'] = otp
+            session['email'] = email
+
+            email_subject = "Your OTP for Password Reset"
+            email_body = f"Your OTP is: {otp}"
+
+            if send_email(email_subject, [email], email_body):
+                flash('OTP sent to your email. Please check your inbox.', 'success')
+                return redirect(url_for('verify_otp'))
+            else:
+                flash("Error sending email. Please try again later.", 'error')
+                return redirect(url_for('reset_password'))
+
+        flash('Email not found', 'error')
+        return redirect(url_for('reset_password'))
+
+    return render_template('reset_password.html')
+
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        data = request.get_json()
+        otp_entered = data.get('otp')
+        if otp_entered == session.get('otp'):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False})
+    return render_template('reset_password.html')
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    try:
+        app.logger.info("Change password route accessed")
+
+        # Check if email is in session
+        if 'email' not in session:
+            app.logger.error("No email found in session")
+            return jsonify({'success': False, 'message': 'No session email found'})
+
+        if request.method == 'POST':
+            # Log request details
+            app.logger.info(f"Request is JSON: {request.is_json}")
+
+            # Handle both JSON and form data
+            if request.is_json:
+                data = request.get_json()
+                app.logger.info(f"Received JSON data: {data}")
+                new_password = data.get('new_password')
+            else:
+                new_password = request.form.get('new_password')
+
+            # Find user by email from session
+            user = User.query.filter_by(email=session.get('email')).first()
+
+            if user:
+                app.logger.info(f"User found: {user.email}")
+                user.set_password(new_password)
+                db.session.commit()
+
+                # Clear session after successful password reset
+                session.pop('email', None)
+                session.pop('otp', None)
+
+                return jsonify({'success': True})
+
+            app.logger.error("User not found in database")
+            return jsonify({'success': False, 'message': 'User not found'})
+
+        return render_template('reset_password.html')
+
+    except Exception as e:
+        app.logger.error(f"Error in change_password: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
 
 
 @app.route('/home', methods=['GET', 'POST'])
