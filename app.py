@@ -366,7 +366,7 @@ async def generate_cover_letter_route():
     company_name = request.form.get('company_name')
     position_name = request.form.get('position_name')
     recipient_name = request.form.get('recipient_name')
-
+    platform_name = request.form.get('platform_name')
     resume = Resume.query.get_or_404(resume_id)
     candidate_name = resume.candidate_name
 
@@ -376,9 +376,9 @@ async def generate_cover_letter_route():
         company_name,
         position_name,
         recipient_name,
+        platform_name,
         candidate_name
     )
-
     return cover_letter
 
 
