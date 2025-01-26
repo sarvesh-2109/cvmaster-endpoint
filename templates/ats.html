@@ -3,79 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATS Resume Analysis</title>
+    <title>CVMaster - ATS Resume Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @media screen and (max-width: 600px) {
-        .analysis-result {
-            padding: 15px;
-            margin-top: 15px;
-            }
-            .analysis-result h2 {
-                font-size: 1.2rem;
-            }
-            .analysis-result pre {
-                font-size: 0.8rem;
-            }
-        }
-
-        .analysis-result {
+        body {
+            font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
-
-        .analysis-result h2 {
-            color: #2c3e50;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+        .nav-link {
+            transition: all 0.3s ease;
         }
-
-        .analysis-result pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: Arial, sans-serif;
-            font-size: 0.9rem;
-            line-height: 1.6;
+        .nav-link:hover {
+            background-color: #e2e8f0;
+            transform: translateX(5px);
+        }
+        .content-wrapper {
+            height: calc(100vh - 2rem);
+            overflow-y: auto;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-center">ATS Resume Analysis</h1>
-        <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading">
-            <div class="mb-4">
-                <label for="resume" class="block text-sm font-medium text-gray-700 mb-2">Select Resume:</label>
-                <select id="resume" name="resume_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    {% for resume in resumes %}
-                    <option value="{{ resume.id }}" {% if selected_resume and selected_resume.id == resume.id %}selected{% endif %}>
-                        {{ resume.candidate_name }} - {{ resume.filename }}
-                    </option>
-                    {% endfor %}
-                </select>
+<body class="h-screen bg-gray-50">
+    <div class="flex h-full">
+        <!-- Sidebar -->
+        <div class="w-64 h-full bg-white shadow-lg fixed">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-blue-600">CVMaster</h1>
             </div>
-            <div class="mb-4">
-                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">Job Description:</label>
-                <textarea id="job_description" name="job_description" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Paste the job description here..."></textarea>
+            <nav class="mt-6">
+                <a href="{{ url_for('home') }}" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-house-door mr-3"></i>
+                    Home
+                </a>
+                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-trash mr-3"></i>
+                    Recycle Bin
+                </a>
+                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-file-earmark-plus mr-3"></i>
+                    Create Resume
+                </a>
+                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-person mr-3"></i>
+                    Profile
+                </a>
+                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-box-arrow-right mr-3"></i>
+                    Log Out
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64 flex-1">
+            <div class="content-wrapper p-8">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">ATS Resume Analysis</h1>
+
+                        <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading" class="space-y-6">
+                            <!-- Resume Selection -->
+                            <div>
+                                <label for="resume" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="bi bi-file-text mr-2"></i>Select Resume
+                                </label>
+                                <select id="resume" name="resume_id"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                                    {% for resume in resumes %}
+                                    <option value="{{ resume.id }}" {% if selected_resume and selected_resume.id == resume.id %}selected{% endif %}>
+                                        {{ resume.candidate_name }} - {{ resume.filename }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Job Description -->
+                            <div>
+                                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="bi bi-briefcase mr-2"></i>Job Description
+                                </label>
+                                <textarea id="job_description" name="job_description" rows="4"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none"
+                                    placeholder="Paste the job description here..." required></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex space-x-4 mt-6">
+                                <button type="submit"
+                                    class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                                    <i class="bi bi-magic mr-2"></i>
+                                    Analyze Resume
+                                </button>
+                                <a
+                                    href="{{ url_for('home') }}"
+                                    class="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center justify-center">
+                                    <i class="bi bi-arrow-left mr-2"></i>
+                                    Back to Home
+                                </a>
+                            </div>
+                        </form>
+
+                        <!-- Loading Indicator -->
+                        <div id="loading" class="htmx-indicator flex justify-center mt-6">
+                            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                        </div>
+
+                        <!-- Analysis Result -->
+                        <div id="analysis-result" class="mt-6 p-6 bg-gray-50 rounded-lg shadow-inner hidden">
+                            <!-- Analysis result will be inserted here -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Analyze Resume
-            </button>
-        </form>
-        <div id="loading" class="htmx-indicator flex justify-center mt-4">
-            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
         </div>
-        <div id="analysis-result" class="analysis-result hidden">
-            <!-- Analysis result will be inserted here -->
-        </div>
-        <a href="{{ url_for('home') }}">Back to Home</a>
     </div>
+
     <script>
         document.body.addEventListener('htmx:afterSwap', function(event) {
             if (event.detail.target.id === 'analysis-result') {
@@ -84,6 +130,5 @@
             }
         });
     </script>
-
 </body>
 </html>

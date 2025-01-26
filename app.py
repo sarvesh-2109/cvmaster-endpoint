@@ -1,15 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from io import BytesIO
 from markupsafe import Markup
 import os
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 from text_extraction import get_pdf_text, get_docx_text, preprocess_text
 from roast import generate_roast
 from feedback import generate_feedback
 from edit_resume import generate_improved_content
 from ats import generate_ats_analysis
 from cover_letter import generate_cover_letter
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+from sqlalchemy.sql import func
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -17,10 +24,18 @@ app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 # Initialize the database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/dbname'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 def allowed_file(filename):
@@ -28,48 +43,176 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# Define the Resume model with an additional column for extracted text
+# Define the User model
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.Text, nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+# Define the Resume model
 class Resume(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(128), nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
-    extracted_text = db.Column(db.Text, nullable=True)  # New column for extracted text
-    candidate_name = db.Column(db.String(128), nullable=False)  # New column for candidate name
-    roast_response = db.Column(db.Text, nullable=True)  # New column for roast response
-    feedback_response = db.Column(db.Text, nullable=True)  # New column for feedback response
+    extracted_text = db.Column(db.Text, nullable=True)
+    candidate_name = db.Column(db.String(128), nullable=False)
+    roast_response = db.Column(db.Text, nullable=True)
+    feedback_response = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('resumes', lazy=True))
 
 
-@app.route('/', methods=['GET', 'POST'])
+# Registration form using WTForms
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('Email is already in use. Please choose a different one.')
+
+
+class ContactRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=func.now())
+
+    user = db.relationship('User', backref=db.backref('contact_requests', lazy=True))
+
+
+class SupportRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    payment_method = db.Column(db.String(50), nullable=False)
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, server_default=func.now())
+
+    user = db.relationship('User', backref=db.backref('support_requests', lazy=True))
+
+
+@app.route('/')
+def landing():
+    return render_template('landing.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = RegistrationForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+
+            # Create new user
+            new_user = User(username=username, email=email)
+            new_user.set_password(password)
+
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user)
+                flash('Signup successful!', 'success')
+                return redirect(url_for('home'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'An error occurred: {str(e)}', 'error')
+
+        # If form validation fails
+        return render_template('signup.html', form=form)
+
+    return render_template('signup.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(password):
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+
+        flash('Invalid email or password', 'error')
+        return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('landing'))
+
+
+@app.route('/home', methods=['GET', 'POST'])
+@login_required
 async def home():
     if request.method == 'POST':
         if 'file' not in request.files:
-            return redirect(request.url)
+            flash('No file part', 'error')
+            return redirect(url_for('home'))
+
         file = request.files['file']
-        candidate_name = request.form.get('candidate_name', 'Candidate')
+        candidate_name = request.form.get('candidate_name', current_user.username)
+
         if file.filename == '' or candidate_name == '':
-            return redirect(request.url)
+            flash('No selected file or candidate name', 'error')
+            return redirect(url_for('home'))
+
         if file and allowed_file(file.filename):
-            # Extract and preprocess text
             file_stream = BytesIO(file.read())
-            if file.filename.lower().endswith('.pdf'):
-                extracted_text = await get_pdf_text(file_stream)
-            elif file.filename.lower().endswith('.docx'):
-                extracted_text = await get_docx_text(file_stream)
-            else:
-                return redirect(request.url)
 
-            preprocessed_text = preprocess_text(extracted_text)
+            try:
+                if file.filename.lower().endswith('.pdf'):
+                    extracted_text = await get_pdf_text(file_stream)
+                elif file.filename.lower().endswith('.docx'):
+                    extracted_text = await get_docx_text(file_stream)
+                else:
+                    flash('Invalid file type', 'error')
+                    return redirect(url_for('home'))
 
-            # Save to database
-            new_resume = Resume(filename=file.filename, data=file_stream.getvalue(),
-                                extracted_text=preprocessed_text, candidate_name=candidate_name)
-            db.session.add(new_resume)
-            db.session.commit()
+                preprocessed_text = preprocess_text(extracted_text)
+
+                new_resume = Resume(
+                    filename=file.filename,
+                    data=file_stream.getvalue(),
+                    extracted_text=preprocessed_text,
+                    candidate_name=candidate_name,
+                    user_id=current_user.id
+                )
+
+                db.session.add(new_resume)
+                db.session.commit()
+                flash('Resume uploaded successfully!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error uploading resume: {str(e)}', 'error')
 
             return redirect(url_for('home'))
 
-    # GET request: display upload form and existing resumes
-    resumes = Resume.query.all()
+    resumes = Resume.query.filter_by(user_id=current_user.id).all()
     return render_template('home.html', resumes=resumes)
 
 
@@ -237,6 +380,133 @@ async def generate_cover_letter_route():
     )
 
     return cover_letter
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        # Extract form data
+        username = request.form.get('username')
+        email = request.form.get('email')
+        job_title = request.form.get('job_title')
+        location = request.form.get('location')
+
+        # Password change handling
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Notification preferences
+        email_notifications = 'email_notifications' in request.form
+        resume_updates = 'resume_updates' in request.form
+
+        # Validate and update user profile
+        try:
+            # Check if username or email already exists
+            existing_user = User.query.filter(
+                (User.username == username) | (User.email == email)
+            ).first()
+
+            if existing_user and existing_user.id != current_user.id:
+                flash('Username or email already exists', 'error')
+                return redirect(url_for('profile'))
+
+            # Update basic profile info
+            current_user.username = username
+            current_user.email = email
+            current_user.job_title = job_title
+            current_user.location = location
+            current_user.email_notifications = email_notifications
+            current_user.resume_updates = resume_updates
+
+            # Password change logic
+            if current_password and new_password and confirm_password:
+                if not current_user.check_password(current_password):
+                    flash('Current password is incorrect', 'error')
+                    return redirect(url_for('profile'))
+
+                if new_password != confirm_password:
+                    flash('New passwords do not match', 'error')
+                    return redirect(url_for('profile'))
+
+                current_user.set_password(new_password)
+
+            db.session.commit()
+            flash('Profile updated successfully', 'success')
+            return redirect(url_for('profile'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating profile', 'error')
+            return redirect(url_for('profile'))
+
+    return render_template('profile.html')
+
+
+@app.route('/contact-us', methods=['GET', 'POST'])
+@login_required
+def contact_us():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+
+        try:
+            # You might want to implement email sending logic here
+            # For now, we'll just log the contact request
+            contact = ContactRequest(
+                user_id=current_user.id,
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+            db.session.add(contact)
+            db.session.commit()
+
+            flash('Your message has been sent successfully!', 'success')
+            return redirect(url_for('contact_us'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while sending your message', 'error')
+            return redirect(url_for('contact_us'))
+
+    return render_template('contactus.html')
+
+
+@app.route('/support-us', methods=['GET', 'POST'])
+@login_required
+def support_us():
+    if request.method == 'POST':
+        donation_amount = request.form.get('donation_amount')
+        custom_amount = request.form.get('custom_amount')
+        payment_method = request.form.get('payment_method')
+
+        try:
+            # You might want to implement payment processing logic here
+            # For now, we'll just log the support request
+            amount = custom_amount if donation_amount == 'custom' else donation_amount
+            support = SupportRequest(
+                user_id=current_user.id,
+                amount=float(amount),
+                payment_method=payment_method,
+                status='pending'
+            )
+            db.session.add(support)
+            db.session.commit()
+
+            flash('Thank you for your support! We will process your donation soon.', 'success')
+            return redirect(url_for('support_us'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while processing your support request', 'error')
+            return redirect(url_for('support_us'))
+
+    return render_template('supportus.html')
 
 
 if __name__ == '__main__':

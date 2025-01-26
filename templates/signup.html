@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVToaster - Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-50">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-4 right-4 z-50">
+                {% for category, message in messages %}
+                    <div class="bg-white border-l-4 {% if category == 'success' %}border-green-500{% else %}border-red-500{% endif %} p-4 mb-4 shadow-lg rounded">
+                        <p class="text-gray-700">{{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="max-w-md w-full mx-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-600">CVToaster</h1>
+            <p class="mt-2 text-gray-600">Create your account</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <form action="{{ url_for('signup') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <div>
+                    {{ form.username.label }}
+                    {{ form.username(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
+                </div>
+                <div>
+                    {{ form.email.label }}
+                    {{ form.email(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
+                </div>
+                <div>
+                    {{ form.password.label }}
+                    {{ form.password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
+                </div>
+                <div>
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
+                </div>
+                <div>
+                    {{ form.submit(class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg") }}
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="{{ url_for('landing') }}" class="text-sm text-gray-600 hover:text-gray-800">
+                <i class="bi bi-arrow-left"></i> Back to home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                message.style.display = 'none';
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

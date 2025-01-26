@@ -1,5 +1,7 @@
 Flask==3.0.3
 Flask[async]==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate
 google-generativeai==0.7.1
 langchain-google-genai==1.0.7
 google-auth==2.31.0
@@ -17,3 +19,9 @@ requests==2.32.3
 faiss-cpu==1.8.0.post1
 gunicorn==21.2.0
 MarkupSafe==2.1.5
+psycopg2
+Flask-Login
+Werkzeug
+Flask-WTF
+WTForms
+email-validator
