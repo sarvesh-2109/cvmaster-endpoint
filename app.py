@@ -13,12 +13,13 @@ from edit_resume import generate_improved_content
 from ats import generate_ats_analysis
 from cover_letter import generate_cover_letter
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
-from sqlalchemy.sql import func
 import random
 import string
 from io import BytesIO
 from markupsafe import Markup
+import shutil
+import threading
+import time
 import os
 
 app = Flask(__name__)
@@ -27,7 +28,6 @@ app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 # Initialize the database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/dbname'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -44,6 +44,34 @@ app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('EMAIL_SENDER', 'cvmaster.in@
 mail = Mail(app)
 
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+
+# Set the path to the FAISS directory
+FAISS_DIR = os.path.join(os.path.dirname(__file__), 'faiss_indices')
+
+# Set the interval to delete the directory (e.g., one hour)
+DELETE_INTERVAL_MS = 1 * 60 * 60 * 1000  # 1 hour
+
+# Function to delete Faiss Indices
+def deleteFAISSDirectory():
+    try:
+        # Delete the directory recursively
+        if os.path.exists(FAISS_DIR):
+            shutil.rmtree(FAISS_DIR)
+        print('FAISS directory deleted successfully.')
+    except (OSError, shutil.Error) as e:
+        print(f'Error deleting FAISS directory: {e}')
+
+
+def start_faiss_cleanup():
+    while True:
+        deleteFAISSDirectory()
+        time.sleep(DELETE_INTERVAL_MS / 1000)  # Sleep for the specified interval
+
+
+# Start the FAISS cleanup in a separate thread
+cleanup_thread = threading.Thread(target=start_faiss_cleanup)
+cleanup_thread.daemon = True
+cleanup_thread.start()
 
 
 @login_manager.user_loader
@@ -493,17 +521,17 @@ def profile():
         # Extract form data
         username = request.form.get('username')
         email = request.form.get('email')
-        job_title = request.form.get('job_title')
-        location = request.form.get('location')
+        # job_title = request.form.get('job_title')
+        # location = request.form.get('location')
 
         # Password change handling
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
 
-        # Notification preferences
-        email_notifications = 'email_notifications' in request.form
-        resume_updates = 'resume_updates' in request.form
+        # # Notification preferences
+        # email_notifications = 'email_notifications' in request.form
+        # resume_updates = 'resume_updates' in request.form
 
         # Validate and update user profile
         try:
@@ -519,10 +547,10 @@ def profile():
             # Update basic profile info
             current_user.username = username
             current_user.email = email
-            current_user.job_title = job_title
-            current_user.location = location
-            current_user.email_notifications = email_notifications
-            current_user.resume_updates = resume_updates
+            # current_user.job_title = job_title
+            # current_user.location = location
+            # current_user.email_notifications = email_notifications
+            # current_user.resume_updates = resume_updates
 
             # Password change logic
             if current_password and new_password and confirm_password:
