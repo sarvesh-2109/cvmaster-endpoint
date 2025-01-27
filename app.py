@@ -3,11 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_mail import Mail, Message
-import random
-import string
-from io import BytesIO
-from markupsafe import Markup
-import os
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
@@ -20,6 +15,11 @@ from cover_letter import generate_cover_letter
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from sqlalchemy.sql import func
+import random
+import string
+from io import BytesIO
+from markupsafe import Markup
+import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -95,29 +95,6 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email is already in use. Please choose a different one.')
-
-
-class ContactRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    subject = db.Column(db.String(200), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, server_default=func.now())
-
-    user = db.relationship('User', backref=db.backref('contact_requests', lazy=True))
-
-
-class SupportRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    payment_method = db.Column(db.String(50), nullable=False)
-    status = db.Column(db.String(20), default='pending')
-    created_at = db.Column(db.DateTime, server_default=func.now())
-
-    user = db.relationship('User', backref=db.backref('support_requests', lazy=True))
 
 
 @app.route('/')
@@ -580,26 +557,24 @@ def contact_us():
         subject = request.form.get('subject')
         message = request.form.get('message')
 
-        try:
-            # You might want to implement email sending logic here
-            # For now, we'll just log the contact request
-            contact = ContactRequest(
-                user_id=current_user.id,
-                name=name,
-                email=email,
-                subject=subject,
-                message=message
-            )
-            db.session.add(contact)
-            db.session.commit()
+        # Construct email body
+        email_body = f"""
+        New contact form submission from:
+        Name: {name}
+        Email: {email}
 
+        Message:
+        {message}
+        """
+
+        # Send email to admin
+        admin_email = app.config['MAIL_DEFAULT_SENDER']  # or another admin email
+        if send_email(subject, [admin_email], email_body):
             flash('Your message has been sent successfully!', 'success')
-            return redirect(url_for('contact_us'))
+        else:
+            flash('There was an error sending your message. Please try again later.', 'error')
 
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred while sending your message', 'error')
-            return redirect(url_for('contact_us'))
+        return redirect(url_for('contact_us'))
 
     return render_template('contactus.html')
 
@@ -607,31 +582,6 @@ def contact_us():
 @app.route('/support-us', methods=['GET', 'POST'])
 @login_required
 def support_us():
-    if request.method == 'POST':
-        donation_amount = request.form.get('donation_amount')
-        custom_amount = request.form.get('custom_amount')
-        payment_method = request.form.get('payment_method')
-
-        try:
-            # You might want to implement payment processing logic here
-            # For now, we'll just log the support request
-            amount = custom_amount if donation_amount == 'custom' else donation_amount
-            support = SupportRequest(
-                user_id=current_user.id,
-                amount=float(amount),
-                payment_method=payment_method,
-                status='pending'
-            )
-            db.session.add(support)
-            db.session.commit()
-
-            flash('Thank you for your support! We will process your donation soon.', 'success')
-            return redirect(url_for('support_us'))
-
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred while processing your support request', 'error')
-            return redirect(url_for('support_us'))
 
     return render_template('supportus.html')
 
