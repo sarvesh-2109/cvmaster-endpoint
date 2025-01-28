@@ -306,22 +306,9 @@ def logout():
 def send_email(subject, recipients, body):
     try:
         msg = Message(subject, recipients=recipients, body=body, sender=app.config['MAIL_DEFAULT_SENDER'])
-        # Additional logging for debugging
-        app.logger.info(f"Attempting to send email:")
-        app.logger.info(f"Subject: {subject}")
-        app.logger.info(f"Recipients: {recipients}")
-        app.logger.info(f"Sender: {app.config['MAIL_DEFAULT_SENDER']}")
         mail.send(msg)
-        app.logger.info("Email sent successfully")
         return True
     except Exception as e:
-        # More detailed error logging
-        app.logger.error(f"Email sending failed: {str(e)}")
-        app.logger.error(f"SMTP Configuration:")
-        app.logger.error(f"MAIL_SERVER: {app.config['MAIL_SERVER']}")
-        app.logger.error(f"MAIL_PORT: {app.config['MAIL_PORT']}")
-        app.logger.error(f"MAIL_USE_TLS: {app.config['MAIL_USE_TLS']}")
-        app.logger.error(f"MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
         return False
 
 
@@ -385,7 +372,6 @@ def verify_otp():
 def change_password():
     try:
         if 'email' not in session:
-            app.logger.error("No email found in session")
             return jsonify({'success': False, 'message': 'No session email found'})
 
         if request.method == 'POST':
@@ -398,7 +384,7 @@ def change_password():
             user = User.query.filter_by(email=session.get('email')).first()
 
             if user:
-                user.set_password(new_password)  # Ensure set_password hashes the password
+                user.set_password(new_password)
                 db.session.commit()
                 session.pop('email', None)
                 session.pop('otp', None)
@@ -409,7 +395,6 @@ def change_password():
         return render_template('reset_password.html')
 
     except Exception as e:
-        app.logger.error(f"Error in change_password: {str(e)}")
         return jsonify({'success': False, 'message': str(e)})
 
 
@@ -459,7 +444,7 @@ async def home():
 
             return redirect(url_for('home'))
 
-    resumes = Resume.query.filter_by(user_id=current_user.id).all()
+    resumes = Resume.query.filter_by(user_id=current_user.id).order_by(Resume.id.desc()).all()
     return render_template('home.html', resumes=resumes)
 
 
