@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVToaster - Sign Up</title>
+    <title>CvMaster - Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gray-50">
-    <!-- Flash Messages -->
+    <!-- Flash Messages
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="fixed top-4 right-4 z-50">
@@ -26,37 +26,55 @@
                 {% endfor %}
             </div>
         {% endif %}
-    {% endwith %}
+    {% endwith %} -->
 
     <div class="max-w-md w-full mx-4">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-600">CVToaster</h1>
+            <h1 class="text-3xl font-bold text-blue-600">CvMaster</h1>
             <p class="mt-2 text-gray-600">Create your account</p>
         </div>
 
         <div class="bg-white p-8 rounded-lg shadow-md">
             <form action="{{ url_for('signup') }}" method="POST">
                 {{ form.hidden_tag() }}
-                <div>
+                <div class="mb-4">
                     {{ form.username.label }}
                     {{ form.username(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
                 </div>
-                <div>
+                <div class="mb-4">
                     {{ form.email.label }}
                     {{ form.email(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
                 </div>
-                <div>
+                <div class="mb-4">
                     {{ form.password.label }}
                     {{ form.password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
                 </div>
-                <div>
+                <div class="mb-4">
                     {{ form.confirm_password.label }}
                     {{ form.confirm_password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
                 </div>
                 <div>
                     {{ form.submit(class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg") }}
                 </div>
+
+
+                <div class="text-center text-sm text-gray-600">
+                    already have an account?
+                    <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-700">
+                       LogIn here
+                    </a>
+                </div>
+
             </form>
+
+            <div class="mt-6">
+                <a href="{{ url_for('google_login') }}"
+                   class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <img class="h-5 w-5 mr-2" src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg" alt="Google Logo">
+                    Sign Up with Google
+                </a>
+            </div>
+
         </div>
 
         <div class="text-center mt-8">
@@ -67,13 +85,13 @@
     </div>
 
     <script>
-        // Auto-hide flash messages after 5 seconds
+        // Auto-hide flash messages after 3 seconds
         setTimeout(function() {
             const flashMessages = document.querySelectorAll('.flash-message');
             flashMessages.forEach(function(message) {
                 message.style.display = 'none';
             });
-        }, 5000);
+        }, 3000);
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVMaster - Support Us</title>
+    <title>CvMaster - Support Us</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,7 +24,9 @@
 <body class="flex min-h-screen">
     <!-- Sidebar -->
     <nav class="w-64 bg-white shadow-lg p-6 space-y-4">
-        <h1 class="text-2xl font-bold text-blue-600 mb-8">CVMaster</h1>
+        <a href="{{ url_for('home') }}">
+            <h1 class="text-2xl font-bold text-blue-600 mb-8">CvMaster</h1>
+        </a>
 
         <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
             <i class="bi bi-house"></i>
@@ -55,7 +57,7 @@
     <!-- Main Content -->
     <main class="flex-1 p-8">
         <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm">
-            <h2 class="text-2xl font-bold text-blue-600 mb-6">Support CVToaster</h2>
+            <h2 class="text-2xl font-bold text-blue-600 mb-6">Support CvMaster</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -72,7 +74,7 @@
             <div class="space-y-6">
                 <div class="bg-blue-50 p-6 rounded-lg">
                     <h3 class="text-lg font-semibold text-blue-600 mb-4">Why Support Us?</h3>
-                    <p class="text-gray-700">By supporting CVToaster, you help us continue improving our platform, adding new features, and helping job seekers worldwide.</p>
+                    <p class="text-gray-700">By supporting CvMaster, you help us continue improving our platform, adding new features, and helping job seekers worldwide.</p>
                 </div>
 
                 <form action="{{ url_for('support_us') }}" method="POST" class="space-y-6">
@@ -110,7 +112,7 @@
                     <div>
                         <button type="submit"
                             class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
-                            Support CVToaster
+                            Support CvMaster
                         </button>
                     </div>
                 </form>

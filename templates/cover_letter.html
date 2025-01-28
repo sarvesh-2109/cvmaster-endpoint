@@ -1,9 +1,10 @@
+<!-- cover_letter.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVMaster - Cover Letter Generator</title>
+    <title>CvMaster - Cover Letter Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -12,7 +13,13 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
-            overflow-y: auto;
+        }
+        .resume-card {
+            transition: all 0.3s ease;
+        }
+        .resume-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         .nav-link {
             transition: all 0.3s ease;
@@ -21,49 +28,47 @@
             background-color: #e2e8f0;
             transform: translateX(5px);
         }
-        .content-wrapper {
-            height: calc(100vh - 2rem); /* Subtract padding */
-            overflow-y: auto;
-        }
     </style>
 </head>
-<body class="h-screen bg-gray-50">
-    <div class="flex h-full">
-        <!-- Sidebar -->
-        <div class="w-64 h-full bg-white shadow-lg fixed">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold text-blue-600">CVMaster</h1>
-            </div>
-            <nav class="mt-6">
-                <a href="{{ url_for('home') }}" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-                    <i class="bi bi-house-door mr-3"></i>
-                    Home
-                </a>
-                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-                    <i class="bi bi-trash mr-3"></i>
-                    Recycle Bin
-                </a>
-                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-                    <i class="bi bi-file-earmark-plus mr-3"></i>
-                    Create Resume
-                </a>
-                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-                    <i class="bi bi-person mr-3"></i>
-                    Profile
-                </a>
-                <a href="#" class="nav-link flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-                    <i class="bi bi-box-arrow-right mr-3"></i>
-                    Log Out
-                </a>
-            </nav>
-        </div>
+<body class="min-h-screen">
+    <div class="flex min-h-screen">
+               <!-- Sidebar -->
+<nav class="w-64 bg-white shadow-lg p-6 space-y-4 fixed h-screen overflow-y-auto">
+    <a href="{{ url_for('home') }}">
+        <h1 class="text-2xl font-bold text-blue-600 mb-8">CvMaster</h1>
+    </a>
+
+    <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+        <i class="bi bi-house"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+    </a>
+
+    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+        <i class="bi bi-envelope"></i>
+        <span>Contact Us</span>
+    </a>
+
+    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg mt-auto">
+        <i class="bi bi-heart"></i>
+        <span>Support Us</span>
+    </a>
+
+    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg mt-auto">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Log Out</span>
+    </a>
+</nav>
 
         <!-- Main Content -->
-        <div class="ml-64 flex-1">
-            <div class="content-wrapper p-8">
-                <div class="max-w-3xl mx-auto">
-                    <div class="bg-white rounded-lg shadow-md p-8">
-                        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Cover Letter Generator</h1>
+        <main class="flex-1 p-8 ml-64">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Cover Letter Generator</h1>
 
                         <form hx-post="/generate_cover_letter" hx-target="#cover-letter-result" hx-indicator="#loading">
                             <!-- Resume Selection -->
