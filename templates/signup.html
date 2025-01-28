@@ -11,87 +11,108 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
+            height: 100vh;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gray-50">
-    <!-- Flash Messages
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="fixed top-4 right-4 z-50">
-                {% for category, message in messages %}
-                    <div class="bg-white border-l-4 {% if category == 'success' %}border-green-500{% else %}border-red-500{% endif %} p-4 mb-4 shadow-lg rounded">
-                        <p class="text-gray-700">{{ message }}</p>
-                    </div>
-                {% endfor %}
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('landing') }}">
+                        <h1 class="text-2xl font-bold text-blue-600">CvMaster</h1>
+                    </a>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
+                    <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                    <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">Sign Up</a>
+                </div>
             </div>
-        {% endif %}
-    {% endwith %} -->
-
-    <div class="max-w-md w-full mx-4">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-600">CvMaster</h1>
-            <p class="mt-2 text-gray-600">Create your account</p>
         </div>
+    </nav>
 
-        <div class="bg-white p-8 rounded-lg shadow-md">
-            <form action="{{ url_for('signup') }}" method="POST">
-                {{ form.hidden_tag() }}
-                <div class="mb-4">
-                    {{ form.username.label }}
-                    {{ form.username(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
+    <div class="h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">Create your account</h2>
+                <p class="mt-1 text-sm text-gray-600">Join us and start building your perfect resume</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg space-y-4">
+                <form action="{{ url_for('signup') }}" method="POST" class="space-y-4">
+                    {{ form.hidden_tag() }}
+                    
+                    <div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-person text-gray-400"></i>
+                            </div>
+                            {{ form.username(class="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", placeholder="Username") }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-envelope text-gray-400"></i>
+                            </div>
+                            {{ form.email(class="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", placeholder="Email") }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-lock text-gray-400"></i>
+                            </div>
+                            {{ form.password(class="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", placeholder="Password") }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-lock-fill text-gray-400"></i>
+                            </div>
+                            {{ form.confirm_password(class="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", placeholder="Confirm Password") }}
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form.submit(class="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+                    </div>
+                </form>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    {{ form.email.label }}
-                    {{ form.email(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
-                </div>
-                <div class="mb-4">
-                    {{ form.password.label }}
-                    {{ form.password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
-                </div>
-                <div class="mb-4">
-                    {{ form.confirm_password.label }}
-                    {{ form.confirm_password(class="mt-1 block w-full px-4 py-2 border rounded-lg") }}
-                </div>
+
                 <div>
-                    {{ form.submit(class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg") }}
-                </div>
-
-
-                <div class="text-center text-sm text-gray-600">
-                    already have an account?
-                    <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-700">
-                       LogIn here
+                    <a href="{{ url_for('google_login') }}"
+                        class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <img class="h-5 w-5 mr-2" src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg" alt="Google Logo">
+                        Sign up with Google
                     </a>
                 </div>
 
-            </form>
-
-            <div class="mt-6">
-                <a href="{{ url_for('google_login') }}"
-                   class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    <img class="h-5 w-5 mr-2" src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg" alt="Google Logo">
-                    Sign Up with Google
-                </a>
+                <div class="text-center text-xs">
+                    <span class="text-gray-600">Already have an account?</span>
+                    <a href="{{ url_for('login') }}" class="ml-1 font-medium text-blue-600 hover:text-blue-700">
+                        Login
+                    </a>
+                </div>
             </div>
-
-        </div>
-
-        <div class="text-center mt-8">
-            <a href="{{ url_for('landing') }}" class="text-sm text-gray-600 hover:text-gray-800">
-                <i class="bi bi-arrow-left"></i> Back to home
-            </a>
         </div>
     </div>
-
-    <script>
-        // Auto-hide flash messages after 3 seconds
-        setTimeout(function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(function(message) {
-                message.style.display = 'none';
-            });
-        }, 3000);
-    </script>
 </body>
 </html>

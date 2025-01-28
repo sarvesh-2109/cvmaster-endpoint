@@ -682,7 +682,6 @@ def profile():
 
 
 @app.route('/contact-us', methods=['GET', 'POST'])
-@login_required
 def contact_us():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -713,7 +712,6 @@ def contact_us():
 
 
 @app.route('/support-us', methods=['GET', 'POST'])
-@login_required
 def support_us():
 
     return render_template('supportus.html')

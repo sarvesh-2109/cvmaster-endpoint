@@ -50,6 +50,14 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap; /* Prevent wrapping */
+            position: relative; /* Required for tooltip */
+        }
+
+        .resume-card h3:hover {
+            white-space: normal; /* Allow text to wrap on hover */
+            overflow: visible; /* Show overflow text */
+            background-color: white; /* Ensure background covers the text */
+            z-index: 10; /* Ensure text is above other elements */
         }
 
         .resume-card p {
@@ -62,8 +70,6 @@
             display: flex;
             gap: 1rem; /* Add spacing between action buttons */
         }
-
-
     </style>
 </head>
 <body>
@@ -128,7 +134,7 @@
                 <!-- Resume Cards -->
                 {% for resume in resumes %}
                 <div class="resume-card bg-white p-6 rounded-xl shadow-sm relative">
-                    <h3 class="font-medium mb-2">{{ resume.filename }}</h3>
+                    <h3 class="font-medium mb-2">{{ resume.filename }} </h3>
                     <p class="text-sm text-gray-500 mb-4">{{ resume.candidate_name }}</p>
                     <div class="flex space-x-2">
                         <a href="{{ url_for('view_resume', resume_id=resume.id) }}" target = "_blank" class="p-2 hover:bg-gray-100 rounded-full" title="View Resume">
@@ -142,7 +148,7 @@
                         </form>
 
                         <div class="relative">
-                            <button class="p-2 hover:bg-gray-100 rounded-full" onclick="toggleDropdown(this)">
+                            <button class="p-2 hover:bg-gray-100 rounded-full" onclick="toggleDropdown(this)"  title="more options">
                                 <i class="bi bi-three-dots"></i>
                             </button>
                             <div class="dropdown-menu bg-white shadow-lg rounded-lg py-2 w-48 right-0">
