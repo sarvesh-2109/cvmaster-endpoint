@@ -255,40 +255,26 @@ def verify_otp():
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
     try:
-        app.logger.info("Change password route accessed")
-
-        # Check if email is in session
         if 'email' not in session:
             app.logger.error("No email found in session")
             return jsonify({'success': False, 'message': 'No session email found'})
 
         if request.method == 'POST':
-            # Log request details
-            app.logger.info(f"Request is JSON: {request.is_json}")
-
-            # Handle both JSON and form data
             if request.is_json:
                 data = request.get_json()
-                app.logger.info(f"Received JSON data: {data}")
                 new_password = data.get('new_password')
             else:
                 new_password = request.form.get('new_password')
 
-            # Find user by email from session
             user = User.query.filter_by(email=session.get('email')).first()
 
             if user:
-                app.logger.info(f"User found: {user.email}")
-                user.set_password(new_password)
+                user.set_password(new_password)  # Ensure set_password hashes the password
                 db.session.commit()
-
-                # Clear session after successful password reset
                 session.pop('email', None)
                 session.pop('otp', None)
-
                 return jsonify({'success': True})
 
-            app.logger.error("User not found in database")
             return jsonify({'success': False, 'message': 'User not found'})
 
         return render_template('reset_password.html')
