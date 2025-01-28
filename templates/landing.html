@@ -17,46 +17,65 @@
         .feature-card:hover {
             transform: translateY(-5px);
         }
+        @media (max-width: 640px) {
+            .feature-card:hover {
+                transform: none;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Hero Section -->
     <div class="min-h-screen">
-        <!-- Fixed Navigation -->
+        <!-- Mobile-friendly Navigation -->
         <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16 items-center">
                     <div class="flex-shrink-0">
                         <a>
-                            <h1 class="text-2xl font-bold text-blue-600">CvMaster</h1>
+                            <h1 class="text-xl sm:text-2xl font-bold text-blue-600">CvMaster</h1>
                         </a>
                     </div>
-                    <div class="flex space-x-4">
-                        <div class="flex space-x-4">
-                            <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
-                            <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
-                            <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                            <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">Sign Up</a>
-                        </div>
+                    <!-- Desktop Navigation -->
+                    <div class="hidden sm:flex space-x-4">
+                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
+                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
+                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">Sign Up</a>
+                    </div>
+                    <!-- Mobile Navigation Menu Button -->
+                    <div class="sm:hidden">
+                        <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 p-2">
+                            <i class="bi bi-list text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Mobile Navigation Menu -->
+                <div id="mobileMenu" class="hidden sm:hidden pb-4">
+                    <div class="flex flex-col space-y-2">
+                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
+                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
+                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium inline-block transition duration-200">Sign Up</a>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <!-- Added padding to prevent content from hiding behind fixed navbar -->
+        <!-- Content with mobile-friendly padding -->
         <div class="pt-16">
             <!-- Hero Content -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
                 <div class="text-center">
-                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight font-extrabold text-gray-900">
                         Welcome to <span class="text-blue-600">CvMaster</span>
                     </h1>
-                    <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    <p class="mt-3 max-w-md mx-auto text-sm sm:text-base md:text-lg text-gray-500 md:mt-5 md:max-w-3xl">
                         Your go-to platform for creating and optimizing resumes! Get noticed by employers with tailored content and layout.
                     </p>
                     <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                        <div class="rounded-md shadow">
-                            <a href="{{ url_for('signup') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition duration-200">
+                        <div class="rounded-md shadow w-full sm:w-auto">
+                            <a href="{{ url_for('signup') }}" class="w-full flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition duration-200">
                                 Get Started
                             </a>
                         </div>
@@ -67,32 +86,32 @@
             <!-- Features Section -->
             <div class="py-12 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                    <div class="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
                         <!-- Feature 1 -->
-                        <div class="feature-card bg-gray-50 p-6 rounded-xl shadow-sm">
+                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
                             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                                 <i class="bi bi-file-earmark-text text-2xl text-blue-600"></i>
                             </div>
-                            <h2 class="text-xl font-semibold text-gray-900 mb-2">Professional Resume Builder</h2>
-                            <p class="text-gray-500">Create stunning resumes optimized for Applicant Tracking Systems (ATS). Stand out from the crowd with perfectly formatted content.</p>
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Professional Resume Builder</h2>
+                            <p class="text-sm sm:text-base text-gray-500">Create stunning resumes optimized for Applicant Tracking Systems (ATS). Stand out from the crowd with perfectly formatted content.</p>
                         </div>
 
                         <!-- Feature 2 -->
-                        <div class="feature-card bg-gray-50 p-6 rounded-xl shadow-sm">
+                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
                             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                                 <i class="bi bi-graph-up text-2xl text-blue-600"></i>
                             </div>
-                            <h2 class="text-xl font-semibold text-gray-900 mb-2">ATS Analysis</h2>
-                            <p class="text-gray-500">Get instant feedback on your resume's ATS compatibility. Improve your chances of landing interviews with data-driven recommendations.</p>
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">ATS Analysis</h2>
+                            <p class="text-sm sm:text-base text-gray-500">Get instant feedback on your resume's ATS compatibility. Improve your chances of landing interviews with data-driven recommendations.</p>
                         </div>
 
                         <!-- Feature 3 -->
-                        <div class="feature-card bg-gray-50 p-6 rounded-xl shadow-sm">
+                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
                             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                                 <i class="bi bi-lightning text-2xl text-blue-600"></i>
                             </div>
-                            <h2 class="text-xl font-semibold text-gray-900 mb-2">Easy to Use</h2>
-                            <p class="text-gray-500">Our intuitive interface makes creating and editing resumes a breeze. Download, share, and update your resumes with just a few clicks.</p>
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Easy to Use</h2>
+                            <p class="text-sm sm:text-base text-gray-500">Our intuitive interface makes creating and editing resumes a breeze. Download, share, and update your resumes with just a few clicks.</p>
                         </div>
                     </div>
                 </div>
@@ -100,26 +119,36 @@
 
             <!-- Footer -->
             <footer class="bg-white border-t">
-                <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
                     <div class="text-center">
-                        <div class="text-center space-x-4">
-                            <p class="text-base text-gray-500">
+                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                            <p class="text-sm sm:text-base text-gray-500">
                                 Already have an account?
                                 <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-700 font-medium">
                                     Login here
                                 </a>
-                                <a href="{{ url_for('contact_us') }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                            </p>
+                            <div class="flex space-x-4">
+                                <a href="{{ url_for('contact_us') }}" class="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium">
                                     Contact Us
                                 </a>
-                                <a href="{{ url_for('support_us') }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                                <a href="{{ url_for('support_us') }}" class="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium">
                                     Support Us
                                 </a>
-                            </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
+
+    <!-- Mobile menu toggle script -->
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>

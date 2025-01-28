@@ -1,4 +1,3 @@
-<!-- ats.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,56 +27,76 @@
             background-color: #e2e8f0;
             transform: translateX(5px);
         }
+        @media (max-width: 768px) {
+            .nav-link:hover {
+                transform: none;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen">
-    <div class="flex min-h-screen">
-             <!-- Sidebar -->
-<nav class="w-64 bg-white shadow-lg p-6 space-y-4 fixed h-screen overflow-y-auto">
-    <a href="{{ url_for('home') }}">
-        <h1 class="text-2xl font-bold text-blue-600 mb-8">CvMaster</h1>
-    </a>
+<body class="min-h-screen bg-gray-50">
+    <!-- Mobile Navigation Toggle -->
+    <div class="lg:hidden fixed top-0 left-0 w-full bg-white z-50 px-4 py-3 flex items-center justify-between shadow-md">
+        <h1 class="text-xl font-bold text-blue-600">CvMaster</h1>
+        <button id="mobile-menu-button" class="text-gray-500 hover:text-gray-700">
+            <i class="bi bi-list text-2xl"></i>
+        </button>
+    </div>
 
-    <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-        <i class="bi bi-house"></i>
-        <span>Home</span>
-    </a>
+    <div class="flex min-h-screen pt-[60px] lg:pt-0">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="transform -translate-x-full lg:translate-x-0 lg:w-64 bg-white shadow-lg fixed h-screen overflow-y-auto transition-transform duration-300 ease-in-out z-40 w-3/4 sm:w-1/2">
+            <div class="p-6 space-y-4">
+                <a href="{{ url_for('home') }}" class="hidden lg:block">
+                    <h1 class="text-2xl font-bold text-blue-600 mb-8">CvMaster</h1>
+                </a>
 
-    <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-        <i class="bi bi-person"></i>
-        <span>Profile</span>
-    </a>
+                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+                    <i class="bi bi-house"></i>
+                    <span>Home</span>
+                </a>
 
-    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-        <i class="bi bi-envelope"></i>
-        <span>Contact Us</span>
-    </a>
+                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
 
-    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg mt-auto">
-        <i class="bi bi-heart text-red-500"></i>
-        <span>Support Us</span>
-    </a>
+                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+                    <i class="bi bi-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
 
-    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg mt-auto">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Log Out</span>
-    </a>
-</nav>
+                <div class="fixed bottom-0 left-0 w-64 bg-white p-6 space-y-4 border-t">
+                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+                        <i class="bi bi-heart text-red-500"></i>
+                        <span>Support Us</span>
+                    </a>
+
+                    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Log Out</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Overlay -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div>
 
         <!-- Main Content -->
-        <main class="flex-1 p-8 ml-64">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64">
             <div class="max-w-3xl mx-auto">
-                <div class="bg-white rounded-lg shadow-md p-8">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">ATS Resume Analysis</h1>
+                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">ATS Resume Analysis</h1>
 
-                    <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading" class="space-y-6">
+                    <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading" class="space-y-4 sm:space-y-6">
                         <!-- Resume Selection -->
                         <div>
                             <label for="resume" class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="bi bi-file-text mr-2"></i>Select Resume
                             </label>
                             <select id="resume" name="resume_id"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                                class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base">
                                 {% for resume in resumes %}
                                 <option value="{{ resume.id }}" {% if selected_resume and selected_resume.id == resume.id %}selected{% endif %}>
                                     {{ resume.candidate_name }} - {{ resume.filename }}
@@ -92,20 +111,19 @@
                                 <i class="bi bi-briefcase mr-2"></i>Job Description
                             </label>
                             <textarea id="job_description" name="job_description" rows="4"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none"
+                                class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none text-sm sm:text-base"
                                 placeholder="Paste the job description here..." required></textarea>
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="flex space-x-4 mt-6">
+                        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
                             <button type="submit"
-                                class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                                class="w-full sm:flex-1 bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center text-sm sm:text-base">
                                 <i class="bi bi-magic mr-2"></i>
                                 Analyze Resume
                             </button>
-                            <a
-                                href="{{ url_for('home') }}"
-                                class="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center justify-center">
+                            <a href="{{ url_for('home') }}"
+                                class="w-full sm:flex-1 bg-gray-200 text-gray-700 py-2 sm:py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center justify-center text-sm sm:text-base">
                                 <i class="bi bi-arrow-left mr-2"></i>
                                 Back to Home
                             </a>
@@ -114,11 +132,11 @@
 
                     <!-- Loading Indicator -->
                     <div id="loading" class="htmx-indicator flex justify-center mt-6">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-blue-600"></div>
                     </div>
 
                     <!-- Analysis Result -->
-                    <div id="analysis-result" class="mt-6 p-6 bg-gray-50 rounded-lg shadow-inner hidden">
+                    <div id="analysis-result" class="mt-6 p-4 sm:p-6 bg-gray-50 rounded-lg shadow-inner hidden">
                         <!-- Analysis result will be inserted here -->
                     </div>
                 </div>
@@ -127,10 +145,34 @@
     </div>
 
     <script>
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        mobileMenuButton.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // HTMX after swap handling
         document.body.addEventListener('htmx:afterSwap', function(event) {
             if (event.detail.target.id === 'analysis-result') {
                 event.detail.target.scrollIntoView({ behavior: 'smooth' });
                 event.detail.target.classList.remove('hidden');
+            }
+        });
+
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) { // lg breakpoint
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
             }
         });
     </script>
