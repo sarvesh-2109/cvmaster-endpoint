@@ -1,3 +1,4 @@
+<!--login.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,10 +120,12 @@
                     </div>
 
                     <div>
-                        <button type="submit"
+                        <button type="submit" id="sendOtpButton"
                             class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
                             Send OTP
                         </button>
+                        <p id="timerDisplay" class="text-sm text-gray-600 mt-2 text-center hidden"></p>
+                        <p id="messageDisplay" class="text-sm mt-2 text-center hidden"></p>
                     </div>
                 </form>
                 <button id="close-modal" class="mt-4 text-blue-600 hover:text-blue-700">
@@ -149,7 +152,11 @@
         document.getElementById('forgot-password-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const email = document.getElementById('reset-email').value;
+            const sendOtpButton = document.getElementById('sendOtpButton');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const messageDisplay = document.getElementById('messageDisplay');
 
+            // Send OTP request
             fetch("{{ url_for('reset_password') }}", {
                 method: 'POST',
                 headers: {
@@ -157,15 +164,53 @@
                 },
                 body: `email=${encodeURIComponent(email)}`
             })
-            .then(response => response.url)
-            .then(url => {
-                window.location.href = url;
+            .then(response => response.json())
+            .then(data => {
+                messageDisplay.classList.remove('hidden');
+
+                if (data.status === 'success') {
+                    messageDisplay.textContent = data.message;
+                    messageDisplay.className = 'text-sm mt-2 text-center text-green-600';
+
+                    // Start the cooldown timer
+                    startCooldown(sendOtpButton, timerDisplay);
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('verify_otp') }}";
+                    }, 2000);
+                } else {
+                    messageDisplay.textContent = data.message;
+                    messageDisplay.className = 'text-sm mt-2 text-center text-red-600';
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to send OTP');
+                messageDisplay.textContent = 'An error occurred. Please try again.';
+                messageDisplay.className = 'text-sm mt-2 text-center text-red-600';
+                messageDisplay.classList.remove('hidden');
             });
         });
+
+        function startCooldown(button, timerDisplay) {
+            let timeLeft = 30;
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+
+            timerDisplay.classList.remove('hidden');
+
+            const timer = setInterval(() => {
+                timerDisplay.textContent = `Resend OTP in ${timeLeft} seconds`;
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    button.disabled = false;
+                    button.classList.remove('opacity-50', 'cursor-not-allowed');
+                    timerDisplay.classList.add('hidden');
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>

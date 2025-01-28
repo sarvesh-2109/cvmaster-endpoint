@@ -305,17 +305,12 @@ def logout():
 
 def send_email(subject, recipients, body):
     try:
-        msg = Message(subject,
-                      recipients=recipients,
-                      body=body,
-                      sender=app.config['MAIL_DEFAULT_SENDER'])
-
+        msg = Message(subject, recipients=recipients, body=body, sender=app.config['MAIL_DEFAULT_SENDER'])
         # Additional logging for debugging
         app.logger.info(f"Attempting to send email:")
         app.logger.info(f"Subject: {subject}")
         app.logger.info(f"Recipients: {recipients}")
         app.logger.info(f"Sender: {app.config['MAIL_DEFAULT_SENDER']}")
-
         mail.send(msg)
         app.logger.info("Email sent successfully")
         return True
@@ -327,34 +322,49 @@ def send_email(subject, recipients, body):
         app.logger.error(f"MAIL_PORT: {app.config['MAIL_PORT']}")
         app.logger.error(f"MAIL_USE_TLS: {app.config['MAIL_USE_TLS']}")
         app.logger.error(f"MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
-
         return False
 
 
-# Modify the reset_password route to use the new send_email function
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     if request.method == 'POST':
         email = request.form.get('email')
+
+        # Check if email is provided
+        if not email:
+            return jsonify({
+                'status': 'error',
+                'message': 'Please enter an email address'
+            })
+
+        # Check if user exists in database
         user = User.query.filter_by(email=email).first()
 
-        if user:
-            otp = ''.join(random.choices(string.digits, k=6))
-            session['otp'] = otp
-            session['email'] = email
+        if not user:
+            return jsonify({
+                'status': 'error',
+                'message': 'No account found with this email address'
+            })
 
-            email_subject = "Your OTP for Password Reset"
-            email_body = f"Your OTP is: {otp}"
+        # If user exists, proceed with OTP generation and email sending
+        otp = ''.join(random.choices(string.digits, k=6))
+        session['otp'] = otp
+        session['email'] = email
 
-            if send_email(email_subject, [email], email_body):
-                flash('OTP sent to your email. Please check your inbox.', 'success')
-                return redirect(url_for('verify_otp'))
-            else:
-                flash("Error sending email. Please try again later.", 'error')
-                return redirect(url_for('reset_password'))
+        email_subject = "Your OTP for Password Reset"
+        email_body = f"Your OTP is: {otp}"
 
-        flash('Email not found', 'error')
-        return redirect(url_for('reset_password'))
+        if send_email(email_subject, [email], email_body):
+            return jsonify({
+                'status': 'success',
+                'message': 'OTP sent to your email. Please check your inbox.',
+                'redirect': url_for('verify_otp')
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Error sending email. Please try again later.'
+            })
 
     return render_template('reset_password.html')
 
