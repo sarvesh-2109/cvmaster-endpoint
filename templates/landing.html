@@ -2,137 +2,198 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CvMaster - Resume Management Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CvMaster</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            -webkit-tap-highlight-color: transparent;
         }
-        .feature-card {
+        .nav-link {
             transition: all 0.3s ease;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
+        .nav-link:hover {
+            background-color: #e2e8f0;
         }
-        @media (max-width: 640px) {
-            .feature-card:hover {
-                transform: none;
+        /* Laptop hover effects */
+        @media (min-width: 1024px) {
+            .hover-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
+            .hover-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        /* Mobile sidebar styles */
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 85%;
+                max-width: 320px;
+                z-index: 50;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f1f1;
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Hero Section -->
-    <div class="min-h-screen">
-        <!-- Mobile-friendly Navigation -->
-        <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex-shrink-0">
-                        <a>
-                            <h1 class="text-xl sm:text-2xl font-bold text-blue-600">CvMaster</h1>
-                        </a>
-                    </div>
-                    <!-- Desktop Navigation -->
-                    <div class="hidden sm:flex space-x-4">
-                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
-                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
-                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">Sign Up</a>
-                    </div>
-                    <!-- Mobile Navigation Menu Button -->
-                    <div class="sm:hidden">
-                        <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 p-2">
-                            <i class="bi bi-list text-2xl"></i>
-                        </button>
-                    </div>
+<body class="min-h-screen bg-gray-50 custom-scrollbar">
+    <!-- Desktop Navigation -->
+    <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                    CvMaster
+                </a>
+                <div class="flex items-center space-x-6">
+                    <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
+                    <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Support Us</a>
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Login</a>
+                    <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">Sign Up</a>
                 </div>
-                <!-- Mobile Navigation Menu -->
-                <div id="mobileMenu" class="hidden sm:hidden pb-4">
-                    <div class="flex flex-col space-y-2">
-                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact Us</a>
-                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Support Us</a>
-                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium inline-block transition duration-200">Sign Up</a>
-                    </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="lg:hidden">
+        <!-- Mobile Menu Button -->
+        <button id="menuToggle" class="fixed top-4 left-4 z-50 bg-white p-3 rounded-lg shadow-lg touch-manipulation">
+            <i class="bi bi-list text-2xl"></i>
+        </button>
+
+        <!-- Overlay for mobile -->
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
+
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar">
+            <div class="flex flex-col h-full p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
+                        <i class="bi bi-x-lg text-2xl"></i>
+                    </button>
+                </div>
+
+                <div class="flex flex-col space-y-3">
+                    <a href="{{ url_for('login') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                        <i class="bi bi-box-arrow-in-right text-xl"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="{{ url_for('signup') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                        <i class="bi bi-person-plus text-xl"></i>
+                        <span>Sign Up</span>
+                    </a>
+                    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                        <i class="bi bi-envelope text-xl"></i>
+                        <span>Contact Us</span>
+                    </a>
+                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                        <i class="bi bi-heart text-xl text-red-500"></i>
+                        <span>Support Us</span>
+                    </a>
                 </div>
             </div>
         </nav>
+    </div>
 
-        <!-- Content with mobile-friendly padding -->
-        <div class="pt-16">
-            <!-- Hero Content -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-                <div class="text-center">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight font-extrabold text-gray-900">
-                        Welcome to <span class="text-blue-600">CvMaster</span>
-                    </h1>
-                    <p class="mt-3 max-w-md mx-auto text-sm sm:text-base md:text-lg text-gray-500 md:mt-5 md:max-w-3xl">
-                        Your go-to platform for creating and optimizing resumes! Get noticed by employers with tailored content and layout.
-                    </p>
-                    <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                        <div class="rounded-md shadow w-full sm:w-auto">
-                            <a href="{{ url_for('signup') }}" class="w-full flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition duration-200">
-                                Get Started
-                            </a>
-                        </div>
-                    </div>
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-24">
+            <!-- Hero Section -->
+            <div class="text-center pb-16">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl tracking-tight font-extrabold text-gray-900">
+                    Welcome to <span class="text-blue-600">CvMaster</span>
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-600">
+                    Your go-to platform for creating and optimizing resumes! Get noticed by employers with tailored content and layout.
+                </p>
+                <div class="mt-8">
+                    <a href="{{ url_for('signup') }}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transition duration-200">
+                        Get Started
+                    </a>
                 </div>
             </div>
 
             <!-- Features Section -->
-            <div class="py-12 bg-white">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
-                        <!-- Feature 1 -->
-                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
-                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                                <i class="bi bi-file-earmark-text text-2xl text-blue-600"></i>
-                            </div>
-                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Professional Resume Builder</h2>
-                            <p class="text-sm sm:text-base text-gray-500">Create stunning resumes optimized for Applicant Tracking Systems (ATS). Stand out from the crowd with perfectly formatted content.</p>
+            <div class="py-16">
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                    <!-- Feature 1 -->
+                    <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="bi bi-file-earmark-text text-2xl text-blue-600"></i>
                         </div>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-3">Professional Resume Builder</h2>
+                        <p class="text-gray-600">Create stunning resumes optimized for Applicant Tracking Systems (ATS). Stand out from the crowd with perfectly formatted content.</p>
+                    </div>
 
-                        <!-- Feature 2 -->
-                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
-                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                                <i class="bi bi-graph-up text-2xl text-blue-600"></i>
-                            </div>
-                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">ATS Analysis</h2>
-                            <p class="text-sm sm:text-base text-gray-500">Get instant feedback on your resume's ATS compatibility. Improve your chances of landing interviews with data-driven recommendations.</p>
+                    <!-- Feature 2 -->
+                    <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="bi bi-graph-up text-2xl text-blue-600"></i>
                         </div>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-3">ATS Analysis</h2>
+                        <p class="text-gray-600">Get instant feedback on your resume's ATS compatibility. Improve your chances of landing interviews with data-driven recommendations.</p>
+                    </div>
 
-                        <!-- Feature 3 -->
-                        <div class="feature-card bg-gray-50 p-4 sm:p-6 rounded-xl shadow-sm">
-                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                                <i class="bi bi-lightning text-2xl text-blue-600"></i>
-                            </div>
-                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Easy to Use</h2>
-                            <p class="text-sm sm:text-base text-gray-500">Our intuitive interface makes creating and editing resumes a breeze. Download, share, and update your resumes with just a few clicks.</p>
+                    <!-- Feature 3 -->
+                    <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="bi bi-lightning text-2xl text-blue-600"></i>
                         </div>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-3">Easy to Use</h2>
+                        <p class="text-gray-600">Our intuitive interface makes creating and editing resumes a breeze. Download, share, and update your resumes with just a few clicks.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Footer -->
-            <footer class="bg-white border-t">
-                <div class="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+            <footer class="border-t border-gray-200 mt-16">
+                <div class="max-w-7xl mx-auto py-8">
                     <div class="text-center">
-                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                            <p class="text-sm sm:text-base text-gray-500">
+                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                            <p class="text-gray-600">
                                 Already have an account?
-                                <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                                <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-700 font-medium ml-2">
                                     Login here
                                 </a>
                             </p>
-                            <div class="flex space-x-4">
-                                <a href="{{ url_for('contact_us') }}" class="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium">
+                            <div class="flex space-x-6">
+                                <a href="{{ url_for('contact_us') }}" class="text-blue-600 hover:text-blue-700 font-medium">
                                     Contact Us
                                 </a>
-                                <a href="{{ url_for('support_us') }}" class="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium">
+                                <a href="{{ url_for('support_us') }}" class="text-blue-600 hover:text-blue-700 font-medium">
                                     Support Us
                                 </a>
                             </div>
@@ -141,14 +202,42 @@
                 </div>
             </footer>
         </div>
-    </div>
+    </main>
 
-    <!-- Mobile menu toggle script -->
     <script>
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
+        // Enhanced mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
         }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Improved window resize handler with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }, 250);
+        });
+
+        // Prevent zoom on iOS devices
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>

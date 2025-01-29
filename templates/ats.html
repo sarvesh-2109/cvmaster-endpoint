@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CvMaster - ATS Resume Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CvMaster</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -12,168 +12,244 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
-        }
-        .resume-card {
-            transition: all 0.3s ease;
-        }
-        .resume-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            -webkit-tap-highlight-color: transparent;
         }
         .nav-link {
             transition: all 0.3s ease;
         }
         .nav-link:hover {
             background-color: #e2e8f0;
-            transform: translateX(5px);
         }
-        @media (max-width: 768px) {
-            .nav-link:hover {
-                transform: none;
+        /* Laptop hover effects */
+        @media (min-width: 1024px) {
+            .hover-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
+            .hover-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+            .form-input:hover {
+                border-color: #93c5fd;
+            }
+            .form-input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            .submit-button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            }
+        }
+        /* Mobile sidebar styles */
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 85%;
+                max-width: 320px;
+                z-index: 50;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .content-overlay {
+                display: none;
+                transition: opacity 0.3s ease-in-out;
+            }
+            .content-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+        }
+        /* Custom scrollbar for modern browsers */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Firefox scrollbar */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f1f1;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
-    <!-- Mobile Navigation Toggle -->
-    <div class="lg:hidden fixed top-0 left-0 w-full bg-white z-50 px-4 py-3 flex items-center justify-between shadow-md">
-        <h1 class="text-xl font-bold text-blue-600">CvMaster</h1>
-        <button id="mobile-menu-button" class="text-gray-500 hover:text-gray-700">
-            <i class="bi bi-list text-2xl"></i>
-        </button>
-    </div>
+<body class="min-h-screen bg-gray-50 custom-scrollbar">
+    <!-- Mobile Menu Button -->
+    <button id="menuToggle" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-lg shadow-lg touch-manipulation">
+        <i class="bi bi-list text-2xl"></i>
+    </button>
 
-    <div class="flex min-h-screen pt-[60px] lg:pt-0">
-        <!-- Sidebar -->
-        <nav id="sidebar" class="transform -translate-x-full lg:translate-x-0 lg:w-64 bg-white shadow-lg fixed h-screen overflow-y-auto transition-transform duration-300 ease-in-out z-40 w-3/4 sm:w-1/2">
-            <div class="p-6 space-y-4">
-                <a href="{{ url_for('home') }}" class="hidden lg:block">
-                    <h1 class="text-2xl font-bold text-blue-600 mb-8">CvMaster</h1>
-                </a>
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 content-overlay backdrop-blur-sm" style="display: none;"></div>
 
-                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-                    <i class="bi bi-house"></i>
+    <!-- Sidebar - Enhanced for laptop -->
+    <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
+        <div class="flex flex-col h-full p-6">
+            <div class="flex items-center justify-between mb-8">
+                <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
+                    <i class="bi bi-x-lg text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col space-y-3">
+                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <i class="bi bi-house text-xl"></i>
                     <span>Home</span>
                 </a>
 
-                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-                    <i class="bi bi-person"></i>
+                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <i class="bi bi-person text-xl"></i>
                     <span>Profile</span>
                 </a>
 
-                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-                    <i class="bi bi-envelope"></i>
+                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <i class="bi bi-envelope text-xl"></i>
                     <span>Contact Us</span>
                 </a>
-
-                <div class="fixed bottom-0 left-0 w-64 bg-white p-6 space-y-4 border-t">
-                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-                        <i class="bi bi-heart text-red-500"></i>
-                        <span>Support Us</span>
-                    </a>
-
-                    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-2 text-gray-700 p-3 rounded-lg">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Log Out</span>
-                    </a>
-                </div>
             </div>
-        </nav>
 
-        <!-- Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div>
+            <div class="mt-auto space-y-3">
+                <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                    <i class="bi bi-heart text-xl text-red-500"></i>
+                    <span>Support Us</span>
+                </a>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64">
-            <div class="max-w-3xl mx-auto">
-                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">ATS Resume Analysis</h1>
+                <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
+                    <i class="bi bi-box-arrow-right text-xl"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
 
-                    <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading" class="space-y-4 sm:space-y-6">
-                        <!-- Resume Selection -->
-                        <div>
-                            <label for="resume" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="bi bi-file-text mr-2"></i>Select Resume
-                            </label>
-                            <select id="resume" name="resume_id"
-                                class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base">
-                                {% for resume in resumes %}
+    <!-- Main Content - Enhanced for laptop -->
+    <main class="lg:ml-72 min-h-screen p-4 lg:p-12">
+        <div class="max-w-5xl mx-auto pt-16 lg:pt-4">
+            <!-- ATS Analysis Form -->
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-10 mb-8 hover-card">
+                <h2 class="text-2xl lg:text-3xl font-bold text-blue-600 mb-6 lg:mb-10 text-center">ATS Resume Analysis</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="mb-6 space-y-3">
+                            {% for category, message in messages %}
+                                <div class="bg-white border-l-4 {% if category == 'success' %}border-green-500{% else %}border-red-500{% endif %} p-3 lg:p-4 rounded shadow">
+                                    <p class="text-gray-700 text-sm lg:text-base">{{ message }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form hx-post="/ats_analysis" hx-target="#analysis-result" hx-indicator="#loading" class="space-y-6">
+                    <div class="space-y-2">
+                        <label for="resume" class="block text-sm font-medium text-gray-700">
+                            <i class="bi bi-file-text mr-2"></i>Select Resume
+                        </label>
+                        <select id="resume" name="resume_id"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all">
+                            {% for resume in resumes %}
                                 <option value="{{ resume.id }}" {% if selected_resume and selected_resume.id == resume.id %}selected{% endif %}>
                                     {{ resume.candidate_name }} - {{ resume.filename }}
                                 </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Job Description -->
-                        <div>
-                            <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="bi bi-briefcase mr-2"></i>Job Description
-                            </label>
-                            <textarea id="job_description" name="job_description" rows="4"
-                                class="w-full px-3 sm:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none text-sm sm:text-base"
-                                placeholder="Paste the job description here..." required></textarea>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
-                            <button type="submit"
-                                class="w-full sm:flex-1 bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center text-sm sm:text-base">
-                                <i class="bi bi-magic mr-2"></i>
-                                Analyze Resume
-                            </button>
-                            <a href="{{ url_for('home') }}"
-                                class="w-full sm:flex-1 bg-gray-200 text-gray-700 py-2 sm:py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center justify-center text-sm sm:text-base">
-                                <i class="bi bi-arrow-left mr-2"></i>
-                                Back to Home
-                            </a>
-                        </div>
-                    </form>
-
-                    <!-- Loading Indicator -->
-                    <div id="loading" class="htmx-indicator flex justify-center mt-6">
-                        <div class="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-blue-600"></div>
+                            {% endfor %}
+                        </select>
                     </div>
 
-                    <!-- Analysis Result -->
-                    <div id="analysis-result" class="mt-6 p-4 sm:p-6 bg-gray-50 rounded-lg shadow-inner hidden">
-                        <!-- Analysis result will be inserted here -->
+                    <div class="space-y-2">
+                        <label for="job_description" class="block text-sm font-medium text-gray-700">
+                            <i class="bi bi-briefcase mr-2"></i>Job Description
+                        </label>
+                        <textarea id="job_description" name="job_description" rows="6" required
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all resize-none"
+                            placeholder="Paste the job description here..."></textarea>
                     </div>
+
+                    <div class="flex justify-center lg:justify-end space-x-4">
+                        <button type="submit"
+                            class="submit-button w-full lg:w-auto px-8 bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                            <i class="bi bi-magic"></i>
+                            <span>Analyze Resume</span>
+                        </button>
+                        <a href="{{ url_for('home') }}"
+                            class="w-full lg:w-auto px-8 bg-gray-200 text-gray-700 py-4 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                            <i class="bi bi-arrow-left"></i>
+                            <span>Back to Home</span>
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div id="loading" class="htmx-indicator flex justify-center mt-8">
+                    <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                </div>
+
+                <!-- Analysis Result -->
+                <div id="analysis-result" class="mt-8 p-6 bg-gray-50 rounded-lg shadow-inner hidden">
+                    <!-- Analysis result will be inserted here -->
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <script>
-        // Mobile menu functionality
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        // Enhanced mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
+        const overlay = document.getElementById('overlay');
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
         }
 
-        mobileMenuButton.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
+        menuToggle.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Improved window resize handler with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.remove('open');
+                    overlay.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }, 250);
+        });
 
         // HTMX after swap handling
         document.body.addEventListener('htmx:afterSwap', function(event) {
             if (event.detail.target.id === 'analysis-result') {
-                event.detail.target.scrollIntoView({ behavior: 'smooth' });
                 event.detail.target.classList.remove('hidden');
+                event.detail.target.scrollIntoView({ behavior: 'smooth' });
             }
         });
 
-        // Handle resize events
-        window.addEventListener('resize', function() {
-            if (window.innerWidth >= 1024) { // lg breakpoint
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.add('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-            }
+        // Prevent zoom on iOS devices
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
         });
     </script>
 </body>
