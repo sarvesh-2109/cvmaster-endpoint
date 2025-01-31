@@ -22,6 +22,7 @@ import threading
 import time
 import os
 from sqlalchemy.sql import func
+from sqlalchemy import inspect
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 import json
@@ -54,14 +55,14 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-
 # Ensure default value is set
-app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT', 'http://localhost:5000/login/google/callback')
+app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
+                                                     'http://localhost:5000/login/google/callback')
 
 # Enable insecure transport in development
-if app.config['GOOGLE_OAUTH_REDIRECT'] and ('localhost' in app.config['GOOGLE_OAUTH_REDIRECT'] or '127.0.0.1' in app.config['GOOGLE_OAUTH_REDIRECT']):
+if app.config['GOOGLE_OAUTH_REDIRECT'] and (
+        'localhost' in app.config['GOOGLE_OAUTH_REDIRECT'] or '127.0.0.1' in app.config['GOOGLE_OAUTH_REDIRECT']):
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
@@ -80,6 +81,7 @@ FAISS_DIR = os.path.join(os.path.dirname(__file__), 'faiss_indices')
 
 # Set the interval to delete the directory (e.g., one hour)
 DELETE_INTERVAL_MS = 1 * 60 * 60 * 1000  # 1 hour
+
 
 # Function to delete Faiss Indices
 def deleteFAISSDirectory():
@@ -708,9 +710,12 @@ def contact_us():
 
 @app.route('/support-us', methods=['GET', 'POST'])
 def support_us():
-
     return render_template('supportus.html')
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+with app.app_context():
+    if not inspect(db.engine).get_table_names():  # Check if there are any tables
+        db.create_all()
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
