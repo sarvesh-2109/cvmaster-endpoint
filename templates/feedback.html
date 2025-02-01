@@ -20,46 +20,6 @@
         .nav-link:hover {
             background-color: #e2e8f0;
         }
-        /* Laptop hover effects */
-        @media (min-width: 1024px) {
-            .hover-card {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .hover-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            }
-            .action-button:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-            }
-        }
-        /* Mobile sidebar styles */
-        @media (max-width: 1023px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                width: 85%;
-                max-width: 320px;
-                z-index: 50;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .content-overlay {
-                display: none;
-                transition: opacity 0.3s ease-in-out;
-            }
-            .content-overlay.active {
-                display: block;
-                opacity: 1;
-            }
-        }
-        /* Custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -79,6 +39,72 @@
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f1f1f1;
         }
+        /* Additional styles for feedback content */
+        .feedback-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #000000;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .feedback-content h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #000000;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .feedback-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .feedback-content ul, .feedback-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .feedback-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        .feedback-content ul li {
+            list-style-type: disc;
+        }
+        .feedback-content ol li {
+            list-style-type: decimal;
+        }
+        .feedback-content b {
+            color: #000000;
+            font-weight: 600;
+        }
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 85%;
+                max-width: 320px;
+                z-index: 50;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        @media (min-width: 1024px) {
+            .hover-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .hover-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+            .action-button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50 custom-scrollbar">
@@ -87,43 +113,40 @@
         <i class="bi bi-list text-2xl"></i>
     </button>
 
-    <!-- Overlay for mobile -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 content-overlay backdrop-blur-sm" style="display: none;"></div>
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
 
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
         <div class="flex flex-col h-full p-6">
             <div class="flex items-center justify-between mb-8">
-                <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
+                <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700">CvMaster</a>
+                <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2">
                     <i class="bi bi-x-lg text-2xl"></i>
                 </button>
             </div>
 
             <div class="flex flex-col space-y-3">
-                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg">
                     <i class="bi bi-house text-xl"></i>
                     <span>Home</span>
                 </a>
-
-                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg">
                     <i class="bi bi-person text-xl"></i>
                     <span>Profile</span>
                 </a>
-
-                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg">
                     <i class="bi bi-envelope text-xl"></i>
                     <span>Contact Us</span>
                 </a>
             </div>
 
             <div class="mt-auto space-y-3">
-                <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50">
                     <i class="bi bi-heart text-xl text-red-500"></i>
                     <span>Support Us</span>
                 </a>
-
-                <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
+                <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg">
                     <i class="bi bi-box-arrow-right text-xl"></i>
                     <span>Log Out</span>
                 </a>
@@ -146,8 +169,8 @@
 
                 <!-- Feedback Content -->
                 <div class="mb-8 bg-gray-50 rounded-lg p-6 custom-scrollbar">
-                    <div class="prose max-w-none">
-                        {{ feedback_response|safe }}
+                    <div class="prose max-w-none feedback-content">
+                        {{ feedback_response | safe }}
                     </div>
                 </div>
 
@@ -156,17 +179,17 @@
                     <input type="hidden" name="feedback_response" value="{{ feedback_response }}">
                     <div class="flex flex-col lg:flex-row gap-3">
                         <button type="submit" name="action" value="regenerate"
-                            class="action-button flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                            class="action-button flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2">
                             <i class="bi bi-arrow-clockwise"></i>
                             <span>Regenerate Feedback</span>
                         </button>
                         <button type="submit" name="action" value="save"
-                            class="action-button flex-1 bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 active:bg-green-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                            class="action-button flex-1 bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 active:bg-green-800 transition duration-200 flex items-center justify-center space-x-2">
                             <i class="bi bi-save"></i>
                             <span>Save Feedback</span>
                         </button>
                         <a href="{{ url_for('home') }}"
-                            class="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-300 active:bg-gray-400 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                            class="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-300 active:bg-gray-400 transition duration-200 flex items-center justify-center space-x-2">
                             <i class="bi bi-arrow-left"></i>
                             <span>Back to Home</span>
                         </a>
@@ -191,7 +214,6 @@
     </main>
 
     <script>
-        // Enhanced mobile menu functionality
         const menuToggle = document.getElementById('menuToggle');
         const closeMenu = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -207,7 +229,6 @@
         closeMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // Improved window resize handler with debouncing
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
@@ -220,7 +241,6 @@
             }, 250);
         });
 
-        // Prevent zoom on iOS devices
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
