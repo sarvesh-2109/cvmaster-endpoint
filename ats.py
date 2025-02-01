@@ -76,14 +76,14 @@ async def get_ats_chain(job_description):
     Provide a comprehensive, detailed analysis of the resume, addressing the candidate directly in the first person throughout your evaluation. Your analysis should include the following sections:
 
     <h2><b>1. Overall Match Assessment</b></h2>
-    <p>Calculate and present an overall match percentage between the resume and the job description. Explain the key factors contributing to this percentage.</p>
+    <p>Calculate and present an overall match percentage between the resume and the job description. Explain the key factors contributing to this percentage.</p><br>
 
     <h2><b>2. Skills Gap Analysis</b></h2>
     <p>Create a detailed list of key skills or qualifications mentioned in the job description that are missing from the resume. For each missing skill:</p>
     <ul>
     <li>Explain its importance to the role</li>
     <li>Suggest how the candidate might acquire or demonstrate this skill</li>
-    </ul>
+    </ul><br>
 
     <h2><b>3. Resume Improvement Suggestions</b></h2>
     <p>Offer specific, actionable suggestions for improving the resume to better align with the job requirements. For each suggestion:</p>
@@ -91,7 +91,7 @@ async def get_ats_chain(job_description):
     <li><b>Provide a clear rationale</li>
     <li>Include an example of how to implement the suggestion</li>
     <li>Explain how this change will positively impact the resume's effectiveness</li>
-    </ul>
+    </ul><br>
 
     <h2><b>4. Standout Qualifications</b></h2>
     <p>Highlight and analyze any standout qualifications or experiences in the resume that are particularly relevant to the position. For each standout item:</p>
@@ -99,7 +99,7 @@ async def get_ats_chain(job_description):
     <li>Explain its relevance to the job description</li>
     <li>Suggest how to further leverage or expand upon this qualification</li>
     <li>If applicable, recommend how to better present this information in the resume</li>
-    </ul>
+    </ul><br>
 
     <h2><b>5. Recommended Projects</b></h2>
     <p>Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world problem-solving portfolio projects that could help bridge any skill gaps. For each project:</p>
@@ -107,7 +107,7 @@ async def get_ats_chain(job_description):
     <li>Provide a short, but detailed description</li>
     <li>Explain how it relates to the desired skills</li>
     <li>Outline the potential impact on the candidate's qualifications</li>
-    </ul>
+    </ul><br>
 
     <h2><b>6. Skill Acquisition Strategy</b></h2>
     <p>Develop a targeted strategy for the candidate to acquire or demonstrate the missing skills in a short period. This strategy should:</p>
@@ -116,10 +116,10 @@ async def get_ats_chain(job_description):
     <li>Include a mix of short-term and long-term actions</li>
     <li>Prioritize skills based on their importance to the job description</li>
     <li>Suggest relevant courses, certifications, or hands-on experiences</li>
-    </ul>
+    </ul><br>
 
     <h2><b>7. Summary</b></h2>
-    <p>Provide a concise list of 3-5 key areas for improvement, summarizing the main points of your feedback.</p>
+    <p>Provide a concise list of 3-5 key areas for improvement, summarizing the main points of your feedback.</p><br>
 
     Remember, as a professional resume expert, your goal is to provide constructive, supportive, and actionable feedback that will genuinely help the candidate improve their resume and significantly enhance their chances of securing the job. Maintain a balance between honesty and encouragement throughout your analysis.
 

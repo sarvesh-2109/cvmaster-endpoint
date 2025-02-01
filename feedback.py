@@ -81,7 +81,7 @@ async def get_feedback_chain(candidate_name):
        a. Comment on all the projects individually.
        b. If a project is well-presented, offer genuine appreciation.
        c. Suggest improvements or expansions where applicable.
-       d. Comment on each project individually point by point by using the appropiate tags. Use a <br> tag after each project title. 
+       d. Comment on each project individually point by point. Use a <br> tag after each project title. 
        For example:
        <br><p><b>Project Title</b><br>
        Your feedback here...</p>

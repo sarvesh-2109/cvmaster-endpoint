@@ -579,9 +579,15 @@ async def ats_analysis(resume_id=None):
         analysis = await generate_ats_analysis(resume.extracted_text, job_description)
 
         safe_analysis = Markup(f"""
-        <h2 class="text-xl font-semibold mb-2">Analysis Results for {resume.candidate_name}</h2>
-        <pre class="whitespace-pre-wrap">{analysis}</pre>
-        """)
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-semibold text-black-900">Analysis Results for {resume.candidate_name}</h2>
+                        <div class="prose prose-blue max-w-none">
+                            <div class="text-black-900 leading-relaxed">
+                                {analysis}
+                            </div>
+                        </div>
+                    </div>
+                """)
         return safe_analysis
 
 
