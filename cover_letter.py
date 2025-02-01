@@ -74,6 +74,7 @@ async def get_cover_letter_chain():
     5. Explains why the applicant would be a great fit for the role
     6. Includes a call to action for next steps
     7. Closes with a professional sign-off
+    8. Add a <br> tag after each paragraph
 
     The cover letter should be concise, engaging, and tailored to the specific job and company. 
     Aim for about 3-4 paragraphs. Keep space between paragraphs

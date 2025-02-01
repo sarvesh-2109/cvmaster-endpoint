@@ -1,280 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CvMaster</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f8;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .nav-link {
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover {
-            background-color: #e2e8f0;
-        }
-        /* Laptop hover effects */
-        @media (min-width: 1024px) {
-            .form-container {
-                max-height: calc(100vh - 3rem);
-                overflow-y: auto;
-            }
-            .hover-card {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .hover-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            }
-            .form-input:hover {
-                border-color: #93c5fd;
-            }
-            .form-input:focus {
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            }
-            .submit-button:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-            }
-        }
-        /* Mobile sidebar styles */
-        @media (max-width: 1023px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                width: 85%;
-                max-width: 320px;
-                z-index: 50;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .content-overlay {
-                display: none;
-                transition: opacity 0.3s ease-in-out;
-            }
-            .content-overlay.active {
-                display: block;
-                opacity: 1;
-            }
-        }
-        /* Custom scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 #f1f1f1;
-        }
-    </style>
-</head>
-<body class="min-h-screen bg-gray-50 custom-scrollbar">
-    <!-- Mobile Menu Button -->
-    <button id="menuToggle" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-lg shadow-lg touch-manipulation">
-        <i class="bi bi-list text-2xl"></i>
-    </button>
+{# edit_resume.html #}
+{% extends "base.html" %}
 
-    <!-- Overlay for mobile -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 content-overlay backdrop-blur-sm" style="display: none;"></div>
+{% block title %}Edit Resume{% endblock %}
 
-    <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
-        <div class="flex flex-col h-full p-6">
-            <div class="flex items-center justify-between mb-8">
-                <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
-                    <i class="bi bi-x-lg text-2xl"></i>
-                </button>
-            </div>
+{% block content %}
+<div class="max-w-4xl mx-auto pt-16 lg:pt-2">
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-8 hover-card">
+        <h2 class="text-2xl font-bold text-blue-600 mb-4 lg:mb-6 text-center">Edit Resume for {{ candidate_name }}</h2>
 
-            <div class="flex flex-col space-y-3">
-                <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-house text-xl"></i>
-                    <span>Home</span>
-                </a>
-
-                <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-person text-xl"></i>
-                    <span>Profile</span>
-                </a>
-
-                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-envelope text-xl"></i>
-                    <span>Contact Us</span>
-                </a>
-            </div>
-
-            <div class="mt-auto space-y-3">
-                <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
-                    <i class="bi bi-heart text-xl text-red-500"></i>
-                    <span>Support Us</span>
-                </a>
-
-                <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
-                    <i class="bi bi-box-arrow-right text-xl"></i>
-                    <span>Log Out</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="lg:ml-72 min-h-screen p-4 lg:p-8">
-        <div class="max-w-4xl mx-auto pt-16 lg:pt-2">
-            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card">
-                <h2 class="text-2xl font-bold text-blue-600 mb-4 lg:mb-6 text-center">Edit Resume for {{ candidate_name }}</h2>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Original Content -->
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-2 text-gray-700 mb-3">
-                            <i class="bi bi-file-text text-xl"></i>
-                            <h3 class="text-lg font-semibold">Original Content</h3>
-                        </div>
-                        <textarea
-                            id="content"
-                            name="content"
-                            rows="15"
-                            class="form-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none custom-scrollbar"
-                            placeholder="Copy and paste the bullet point(s) from your project or experience section that you'd like to enhance. Click 'Regenerate' to get a polished, professional version of your content."></textarea>
-                    </div>
-
-                    <!-- Improved Content -->
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-2 text-gray-700 mb-3">
-                            <i class="bi bi-stars text-xl"></i>
-                            <h3 class="text-lg font-semibold">Improved Content</h3>
-                        </div>
-                        <div id="result" class="min-h-[384px] p-4 bg-gray-50 rounded-lg border border-gray-200 custom-scrollbar">
-                            <p class="text-gray-500">Improved content will appear here...</p>
-                        </div>
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Original Content -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-2 text-gray-700 mb-3">
+                    <i class="bi bi-file-text text-xl"></i>
+                    <h3 class="text-lg font-semibold">Original Content</h3>
                 </div>
+                <textarea
+                    id="content"
+                    name="content"
+                    rows="15"
+                    class="form-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none custom-scrollbar"
+                    placeholder="Copy and paste the bullet point(s) from your project or experience section that you'd like to enhance. Click 'Regenerate' to get a polished, professional version of your content."></textarea>
+            </div>
 
-                <!-- Action Buttons -->
-                <div class="flex flex-col lg:flex-row gap-3 mt-6">
-                    <button
-                        id="regenerate"
-                        class="submit-button flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
-                        <i class="bi bi-arrow-clockwise"></i>
-                        <span>Regenerate</span>
-                    </button>
-                    <a
-                        href="{{ url_for('home') }}"
-                        class="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-300 active:bg-gray-400 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
-                        <i class="bi bi-arrow-left"></i>
-                        <span>Back to Home</span>
-                    </a>
+            <!-- Improved Content -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-2 text-gray-700 mb-3">
+                    <i class="bi bi-stars text-xl"></i>
+                    <h3 class="text-lg font-semibold">Improved Content</h3>
                 </div>
-
-                <!-- Loading Indicator -->
-                <div id="loading" class="htmx-indicator flex justify-center mt-6" style="display: none;">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div id="result" class="min-h-[384px] p-4 bg-gray-50 rounded-lg border border-gray-200 custom-scrollbar">
+                    <p class="text-gray-500">Improved content will appear here...</p>
                 </div>
             </div>
         </div>
-    </main>
 
-    <script>
-        // Enhanced mobile menu functionality
-        const menuToggle = document.getElementById('menuToggle');
-        const closeMenu = document.getElementById('closeMenu');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
+        <!-- Action Buttons -->
+        <div class="flex flex-col lg:flex-row gap-3 mt-6">
+            <button
+                id="regenerate"
+                class="submit-button flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Regenerate</span>
+            </button>
+            <a
+                href="{{ url_for('home') }}"
+                class="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-300 active:bg-gray-400 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                <i class="bi bi-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
 
-        function toggleMenu() {
-            sidebar.classList.toggle('open');
-            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        <!-- Loading Indicator -->
+        <div id="loading" class="htmx-indicator flex justify-center mt-6" style="display: none;">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Resume regeneration functionality
+    document.getElementById('regenerate').addEventListener('click', function() {
+        const content = document.getElementById('content').value;
+        const resultDiv = document.getElementById('result');
+        const loadingIndicator = document.getElementById('loading');
+
+        if (!content.trim()) {
+            resultDiv.innerHTML = '<p class="text-red-500">Please enter some content to improve.</p>';
+            return;
         }
 
-        menuToggle.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
+        loadingIndicator.style.display = 'flex';
+        resultDiv.innerHTML = '<p class="text-gray-500">Generating improved content...</p>';
 
-        // Improved window resize handler with debouncing
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (window.innerWidth >= 1024) {
-                    sidebar.classList.remove('open');
-                    overlay.style.display = 'none';
-                    document.body.style.overflow = '';
-                }
-            }, 250);
+        fetch('/edit_resume/{{ resume_id }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({content: content}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            resultDiv.innerHTML = data.improved_content.replace(/\n/g, '<br>');
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            resultDiv.innerHTML = '<p class="text-red-500">Error generating improved content. Please try again.</p>';
+        })
+        .finally(() => {
+            loadingIndicator.style.display = 'none';
         });
-
-        // Resume regeneration functionality
-        document.getElementById('regenerate').addEventListener('click', function() {
-            const content = document.getElementById('content').value;
-            const resultDiv = document.getElementById('result');
-            const loadingIndicator = document.getElementById('loading');
-
-            if (!content.trim()) {
-                resultDiv.innerHTML = '<p class="text-red-500">Please enter some content to improve.</p>';
-                return;
-            }
-
-            loadingIndicator.style.display = 'flex';
-            resultDiv.innerHTML = '<p class="text-gray-500">Generating improved content...</p>';
-
-            fetch('/edit_resume/{{ resume_id }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({content: content}),
-            })
-            .then(response => response.json())
-            .then(data => {
-                resultDiv.innerHTML = data.improved_content.replace(/\n/g, '<br>');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                resultDiv.innerHTML = '<p class="text-red-500">Error generating improved content. Please try again.</p>';
-            })
-            .finally(() => {
-                loadingIndicator.style.display = 'none';
-            });
-        });
-
-        // Prevent zoom on iOS devices
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
-
-        // Auto-hide flash messages after 3 seconds
-        setTimeout(function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(function(message) {
-                message.style.display = 'none';
-            });
-        }, 3000);
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}
