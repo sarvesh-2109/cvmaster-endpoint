@@ -17,35 +17,33 @@ FAISS_INDEX_DIR = "faiss_indices"
 # Ensure the directory exists
 os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
 
-prompt_template = """You are an expert resume builder tasked with improving and reformatting the given content to 
-    make it more impactful and suitable for a resume. Your goal is to enhance the content's effectiveness while 
-    maintaining its core message.
+prompt_template = """You are an expert resume builder tasked with improving and reformatting the given content to make it more impactful and suitable for a resume. Your goal is to enhance the content's effectiveness while maintaining its core message.
 
     Guidelines:
-    Summarize the input content.
-    If the summarized content is in a paragraph, convert the summarized content into concise, impactful bullet points.
-    If the summarized content is in points or short sentences, improve each point to make it more compelling.
-    Don't give the summarized points in the final response.
-    Rewrite the sentence using actionable and impactful points. Make use strong action verbs and quantifiable achievements.
-    While rewriting, avoid clichés and generic statements; aim for unique and specific content.
-    Rewrite in an industry-appropriate and professional language.
-    Whilst rewriting maintain a balance between being concise and providing enough detail to showcase expertise.
+    - Summarize the input content
+    - Analyze and restructure the content to follow the STAR method (Situation, Task, Action, Result)
+    - Present exactly 4 bullet points that implicitly follow the STAR sequence
+    - Use strong action verbs and quantifiable achievements
+    - Highlight key skills, technologies, metrics, and achievements using <b> tags
+    - Avoid clichés and generic statements; aim for unique and specific content
+    - Write in an industry-appropriate and professional language
+    - Maintain a balance between being concise and providing enough detail
     
-    The final response should only contain:
-    Append the rewritten points under "<h2><b>Improved Point(s):</b></h2>". 
-    At the end add "<h2><b>Additional Points:</b></h2>" where provide examples of sentence(s) that will quantify the achievements and use variables instead of numbers.
-    Make the keywords or phrases bold by using the <b> tag.
+    The final response should contain:
     
-
-    Format the output using the following HTML tags:
-    - <ul> for unordered lists
-    - <li> for list items
-    - <b> for emphasis on key terms or achievements
-    - <i> for any technical terms or job titles
-
-    Original content:
-    {content}
-
+    <h2><b>Improved Points:</b></h2>
+    <ul>
+    <li>[First point implicitly describing the situation/context with <b>key terms</b> highlighted]</li>
+    <li>[Second point implicitly conveying the specific task/responsibility with <b>key terms</b> highlighted]</li>
+    <li>[Third point detailing the actions taken with <b>key terms</b> highlighted]</li>
+    <li>[Fourth point highlighting the quantifiable results with <b>key terms</b> highlighted]</li>
+    </ul>
+    
+    <h2><b>Additional Points:</b></h2>
+    [Provide examples of sentences that quantify achievements using variables instead of numbers, with <b>key terms</b> highlighted]
+    
+    Original content: {content}
+    
     Please provide the improved version:
     """
 
