@@ -29,6 +29,7 @@ from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
+app.config['SERVER_NAME'] = os.environ.get('SERVER_NAME')
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -172,8 +173,9 @@ def google_login():
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # Use url_for to generate the exact redirect URI
-    redirect_uri = url_for('callback', _external=True)
+    # Generate and print the exact redirect URI
+    redirect_uri = url_for('callback', _external=True, _scheme='https')
+    print(f"Redirect URI being used: {redirect_uri}")  # Debug print
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
@@ -187,6 +189,9 @@ def google_login():
 
 @app.route("/login/google/callback")
 def callback():
+    # Print the current request URL for debugging
+    print(f"Callback received at: {request.url}")  # Debug print
+
     if request.args.get('state') != session.pop('oauth_state', None):
         flash("Invalid state parameter", "error")
         return redirect(url_for("login"))
@@ -204,8 +209,9 @@ def callback():
 
         token_endpoint = google_provider_cfg["token_endpoint"]
 
-        # Use url_for for consistent redirect URI
-        redirect_uri = url_for('callback', _external=True)
+        # Use the same redirect URI generation method
+        redirect_uri = url_for('callback', _external=True, _scheme='https')
+        print(f"Token request redirect URI: {redirect_uri}")  # Debug print
 
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
