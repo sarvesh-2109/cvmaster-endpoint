@@ -565,7 +565,7 @@ async def edit_resume(resume_id):
 @app.route('/ats_analysis/<int:resume_id>', methods=['GET'])
 async def ats_analysis(resume_id=None):
     if request.method == 'GET':
-        resumes = Resume.query.all()
+        resumes = Resume.query.filter_by(user_id=current_user.id).all()
         selected_resume = None
         if resume_id:
             selected_resume = Resume.query.get_or_404(resume_id)
@@ -589,7 +589,7 @@ async def ats_analysis(resume_id=None):
 
 @app.route('/cover_letter', methods=['GET'])
 def cover_letter_form():
-    resumes = Resume.query.all()
+    resumes = Resume.query.filter_by(user_id=current_user.id).all()
     return render_template('cover_letter.html', resumes=resumes)
 
 
