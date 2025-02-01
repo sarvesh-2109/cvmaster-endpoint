@@ -159,7 +159,7 @@ class RegistrationForm(FlaskForm):
 
 @app.route('/')
 def landing():
-    return render_template('landing.html')
+    return render_template('landing.html', layout_type ='navbar')
 
 
 app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
@@ -295,7 +295,7 @@ def login():
         flash('Invalid email or password', 'error')
         return redirect(url_for('login'))
 
-    return render_template('login.html')
+    return render_template('login.html', layout_type ='navbar')
 
 
 @app.route('/logout')

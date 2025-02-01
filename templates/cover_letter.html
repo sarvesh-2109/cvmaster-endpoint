@@ -96,6 +96,83 @@
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f1f1f1;
         }
+
+        /* Cover Letter Styles */
+        #cover-letter-result {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        #cover-letter-result p {
+            color: #111827;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        #cover-letter-result b,
+        #cover-letter-result strong {
+            color: #111827;
+            font-weight: 600;
+        }
+        #cover-letter-result i {
+            color: #111827;
+            font-style: italic;
+        }
+        #cover-letter-result ul,
+        #cover-letter-result ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        #cover-letter-result ul {
+            list-style-type: disc;
+        }
+        #cover-letter-result ol {
+            list-style-type: decimal;
+        }
+        #cover-letter-result li {
+            color: #111827;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+        #cover-letter-result ul ul,
+        #cover-letter-result ol ol,
+        #cover-letter-result ul ol,
+        #cover-letter-result ol ul {
+            margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+        #cover-letter-result br {
+            display: block;
+            margin: 0.5rem 0;
+        }
+        /* Prose styles for both sections */
+        #cover-letter-result .prose {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #111827;
+            max-width: none;
+        }
+        #cover-letter-result .prose p {
+            margin-bottom: 1.25em;
+            color: #111827;
+        }
+        #cover-letter-result .prose strong {
+            color: #111827;
+            font-weight: 600;
+        }
+        #cover-letter-result .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5em;
+            margin-top: 1.25em;
+            margin-bottom: 1.25em;
+        }
+        #cover-letter-result .prose li {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            color: #111827;
+        }
+        /* Ensuring spacing consistency */
+        #cover-letter-result .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 1.5rem;
+        }
+
     </style>
 </head>
 <body class="min-h-screen bg-gray-50 custom-scrollbar">
