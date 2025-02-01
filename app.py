@@ -277,7 +277,7 @@ def signup():
         # If form validation fails
         return render_template('signup.html', form=form)
 
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form, layout_type ='navbar')
 
 
 @app.route('/login', methods=['GET', 'POST'])
