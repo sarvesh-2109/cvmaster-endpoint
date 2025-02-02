@@ -65,6 +65,7 @@ else:
     app.logger.error("Google OAuth credentials not configured!")
     client = None
 
+
 def get_google_provider_cfg():
     try:
         return requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
@@ -157,10 +158,6 @@ class RegistrationForm(FlaskForm):
 @app.route('/')
 def landing():
     return render_template('landing.html', layout_type ='navbar')
-
-
-app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
-                                                     'http://localhost:5000/login/google/callback')
 
 
 @app.route("/login/google")
