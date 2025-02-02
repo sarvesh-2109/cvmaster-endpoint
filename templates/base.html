@@ -20,7 +20,6 @@
         .nav-link:hover {
             background-color: #e2e8f0;
         }
-        /* Laptop hover effects */
         @media (min-width: 1024px) {
             .hover-card {
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -30,7 +29,6 @@
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
         }
-        /* Mobile sidebar styles */
         @media (max-width: 1023px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -47,7 +45,6 @@
                 transform: translateX(0);
             }
         }
-        /* Custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -71,120 +68,177 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="min-h-screen bg-gray-50 custom-scrollbar">
-    {% if layout_type == 'navbar' %}
-        <!-- Desktop Navigation -->
-        <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-            <div class="max-w-7xl mx-auto px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
-                    </a>
-                    <div class="flex items-center space-x-6">
-                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
-                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Support Us</a>
-                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Login</a>
-                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">Sign Up</a>
+    {% if page_type == 'mbnav' %}
+        <!-- Mobile Navigation-->
+        <div class="lg:hidden">
+            <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between h-16 items-center">
+                        <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600">
+                            CvMaster
+                        </a>
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ url_for('profile') }}" class="text-gray-600">
+                                <i class="bi bi-person text-xl"></i>
+                            </a>
+                            <a href="{{ url_for('contact_us') }}" class="text-gray-600">
+                                <i class="bi bi-envelope text-xl"></i>
+                            </a>
+                            <a href="{{ url_for('support_us') }}" class="text-red-500">
+                                <i class="bi bi-heart text-xl"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-
-        <!-- Mobile Navigation -->
-<div class="lg:hidden">
-    <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-        <div class="max-w-7xl mx-auto px-8">
-            <div class="flex justify-between h-16 items-center">
-                <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                    CvMaster
-                </a>
-                <button id="menuToggle" class=" touch-manipulation">
-                    <i class="bi bi-list text-2xl"></i>
-                </button>
-            </div>
+            </nav>
         </div>
-    </nav>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
-
-    <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar">
-        <div class="flex flex-col h-full p-6">
-            <div class="flex items-center justify-between mb-8">
-                <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
-                    <i class="bi bi-x-lg text-2xl"></i>
-                </button>
-                
-            </div>
-            <div class="flex flex-col space-y-3">
-                <a href="{{ url_for('login') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-box-arrow-in-right text-xl"></i>
-                    <span>Login</span>
-                </a>
-                <a href="{{ url_for('signup') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-person-plus text-xl"></i>
-                    <span>Sign Up</span>
-                </a>
-                <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                    <i class="bi bi-envelope text-xl"></i>
-                    <span>Contact Us</span>
-                </a>
-                <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
-                    <i class="bi bi-heart text-xl text-red-500"></i>
-                    <span>Support Us</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-</div>
-
-    {% else %}
-        <!-- Sidebar Layout -->
-        <button id="menuToggle" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-lg shadow-lg touch-manipulation">
-            <i class="bi bi-list text-2xl"></i>
-        </button>
-
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
-
-        <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
+        <!-- Desktop Sidebar for Home Page -->
+        <nav class="hidden lg:block fixed top-0 left-0 h-screen w-72 bg-white shadow-lg">
             <div class="flex flex-col h-full p-6">
                 <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                    <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
-                        <i class="bi bi-x-lg text-2xl"></i>
-                    </button>
+                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600">CvMaster</a>
                 </div>
-
                 <div class="flex flex-col space-y-3">
-                    <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50">
                         <i class="bi bi-house text-xl"></i>
                         <span>Home</span>
                     </a>
-                    <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50">
                         <i class="bi bi-person text-xl"></i>
                         <span>Profile</span>
                     </a>
-                    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50">
                         <i class="bi bi-envelope text-xl"></i>
                         <span>Contact Us</span>
                     </a>
                 </div>
-
                 <div class="mt-auto space-y-3">
-                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50">
                         <i class="bi bi-heart text-xl text-red-500"></i>
                         <span>Support Us</span>
                     </a>
-                    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
+                    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100">
                         <i class="bi bi-box-arrow-right text-xl"></i>
                         <span>Log Out</span>
                     </a>
                 </div>
             </div>
         </nav>
+    {% else %}
+        {% if layout_type == 'navbar' %}
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                <div class="max-w-7xl mx-auto px-8">
+                    <div class="flex justify-between h-16 items-center">
+                        <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                            CvMaster
+                        </a>
+                        <div class="flex items-center space-x-6">
+                            <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
+                            <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Support Us</a>
+                            <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Login</a>
+                            <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">Sign Up</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Navigation -->
+            <div class="lg:hidden">
+                <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                    <div class="max-w-7xl mx-auto px-8">
+                        <div class="flex justify-between h-16 items-center">
+                            <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                                CvMaster
+                            </a>
+                            <button id="menuToggle" class="touch-manipulation">
+                                <i class="bi bi-list text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+
+                <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
+
+                <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar">
+                    <div class="flex flex-col h-full p-6">
+                        <div class="flex items-center justify-between mb-8">
+                            <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                            <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
+                                <i class="bi bi-x-lg text-2xl"></i>
+                            </button>
+                        </div>
+                        <div class="flex flex-col space-y-3">
+                            <a href="{{ url_for('login') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-box-arrow-in-right text-xl"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="{{ url_for('signup') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-person-plus text-xl"></i>
+                                <span>Sign Up</span>
+                            </a>
+                            <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-envelope text-xl"></i>
+                                <span>Contact Us</span>
+                            </a>
+                            <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                                <i class="bi bi-heart text-xl text-red-500"></i>
+                                <span>Support Us</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        {% else %}
+            <!-- Sidebar Layout -->
+            <button id="menuToggle" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-lg shadow-lg touch-manipulation">
+                <i class="bi bi-list text-2xl"></i>
+            </button>
+
+            <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
+
+            <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
+                <div class="flex flex-col h-full p-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                        <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
+                            <i class="bi bi-x-lg text-2xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col space-y-3">
+                        <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-house text-xl"></i>
+                            <span>Home</span>
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-person text-xl"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-envelope text-xl"></i>
+                            <span>Contact Us</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-auto space-y-3">
+                        <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                            <i class="bi bi-heart text-xl text-red-500"></i>
+                            <span>Support Us</span>
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
+                            <i class="bi bi-box-arrow-right text-xl"></i>
+                            <span>Log Out</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        {% endif %}
     {% endif %}
 
     <!-- Main Content -->
-    <main class="{% if layout_type != 'navbar' %}lg:ml-72{% endif %} min-h-screen">
+    <main class="{% if page_type == 'home' %}lg:ml-72 pt-16 lg:pt-0{% elif layout_type != 'navbar' %}lg:ml-72{% endif %} min-h-screen">
         {% block content %}{% endblock %}
     </main>
 
@@ -196,22 +250,24 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
-        function toggleMenu() {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('hidden');
-            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-        }
+        if (menuToggle && closeMenu && sidebar && overlay) {
+            function toggleMenu() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('hidden');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
 
-        menuToggle.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
+            menuToggle.addEventListener('click', toggleMenu);
+            closeMenu.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        }
 
         // Window resize handler with debouncing
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (window.innerWidth >= 1024) {
+                if (window.innerWidth >= 1024 && sidebar) {
                     sidebar.classList.remove('open');
                     overlay.classList.add('hidden');
                     document.body.style.overflow = '';
