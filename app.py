@@ -492,7 +492,7 @@ async def roast_resume(resume_id):
         if action == 'regenerate':
             roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
             return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
-                                   resume_filename=resume.filename)
+                                   resume_filename=resume.filename, page_type='mbnav')
 
         elif action == 'save':
             roast_response = request.form.get('roast_response')
@@ -500,7 +500,7 @@ async def roast_resume(resume_id):
             db.session.commit()
             flash('Roast saved successfully!', 'success')  # Add a success flash message
             return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
-                                   resume_filename=resume.filename)
+                                   resume_filename=resume.filename, page_type='mbnav')
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
@@ -522,7 +522,7 @@ async def feedback_resume(resume_id):
         if action == 'regenerate':
             feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename)
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, page_type='mbnav')
 
         elif action == 'save':
             feedback_response = request.form.get('feedback_response')
