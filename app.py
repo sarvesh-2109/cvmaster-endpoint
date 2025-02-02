@@ -21,22 +21,18 @@ import shutil
 import threading
 import time
 import os
+from sqlalchemy.sql import func
 from sqlalchemy import inspect
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 import json
-from datetime import timedelta
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
-app.config['SERVER_NAME'] = os.environ.get('SERVER_NAME')
-app.config['PREFERRED_URL_SCHEME'] = 'https'
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 # Initialize the database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/dbname'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -59,8 +55,22 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# OAuth 2 client setup with security configurations
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+DEPLOYED_URL = os.environ.get('DEPLOYED_URL')
+app.config['GOOGLE_OAUTH_REDIRECT'] = f"{DEPLOYED_URL}/login/google/callback"
+
+
+if GOOGLE_CLIENT_ID:
+    client = WebApplicationClient(GOOGLE_CLIENT_ID)
+else:
+    app.logger.error("Google OAuth credentials not configured!")
+    client = None
+
+def get_google_provider_cfg():
+    try:
+        return requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Error fetching Google provider config: {str(e)}")
+        return None
 
 
 # Set the path to the FAISS directory
@@ -149,23 +159,17 @@ def landing():
     return render_template('landing.html', layout_type ='navbar')
 
 
-def get_google_provider_cfg():
-    try:
-        return requests.get(
-            GOOGLE_DISCOVERY_URL,
-            timeout=5,  # Add timeout
-            verify=True  # Enforce SSL verification
-        ).json()
-    except Exception as e:
-        app.logger.error(f"Failed to fetch Google provider config: {str(e)}")
-        return None
+app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
+                                                     'http://localhost:5000/login/google/callback')
 
 
 @app.route("/login/google")
 def google_login():
-    # Generate state for CSRF protection
-    session['oauth_state'] = os.urandom(16).hex()
+    if not client:
+        flash("Google OAuth not configured", "error")
+        return redirect(url_for("login"))
 
+    # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     if not google_provider_cfg:
         flash("Error connecting to Google", "error")
@@ -173,15 +177,11 @@ def google_login():
 
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # Generate and print the exact redirect URI
-    redirect_uri = url_for('callback', _external=True, _scheme='https')
-    print(f"Redirect URI being used: {redirect_uri}")  # Debug print
-
+    # Use library's prepare_request_uri method
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=redirect_uri,
+        redirect_uri=app.config['GOOGLE_OAUTH_REDIRECT'],
         scope=["openid", "email", "profile"],
-        state=session['oauth_state']
     )
 
     return redirect(request_uri)
@@ -189,17 +189,15 @@ def google_login():
 
 @app.route("/login/google/callback")
 def callback():
-    # Print the current request URL for debugging
-    print(f"Callback received at: {request.url}")  # Debug print
-
-    if request.args.get('state') != session.pop('oauth_state', None):
-        flash("Invalid state parameter", "error")
+    if not client:
+        flash("Google OAuth not configured", "error")
         return redirect(url_for("login"))
 
     try:
+        # Get authorization code Google sent back
         code = request.args.get("code")
         if not code:
-            flash("No authorization code received", "error")
+            flash("No authorization code received from Google", "error")
             return redirect(url_for("login"))
 
         google_provider_cfg = get_google_provider_cfg()
@@ -209,75 +207,55 @@ def callback():
 
         token_endpoint = google_provider_cfg["token_endpoint"]
 
-        # Use the same redirect URI generation method
-        redirect_uri = url_for('callback', _external=True, _scheme='https')
-        print(f"Token request redirect URI: {redirect_uri}")  # Debug print
-
+        # Prepare and send token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url,
-            redirect_url=redirect_uri,
-            code=code
+            redirect_url=app.config['GOOGLE_OAUTH_REDIRECT'],
+            code=code,
         )
 
         token_response = requests.post(
             token_url,
             headers=headers,
             data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            timeout=5
         )
 
-        if not token_response.ok:
-            app.logger.error(f"Token request failed: {token_response.text}")
-            flash("Failed to get access token", "error")
-            return redirect(url_for("login"))
-
+        # Parse the tokens
         client.parse_request_body_response(json.dumps(token_response.json()))
 
+        # Get user info from Google
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
 
-        userinfo_response = requests.get(uri, headers=headers)
-
-        if not userinfo_response.ok:
-            app.logger.error(f"Userinfo request failed: {userinfo_response.text}")
-            flash("Failed to get user info", "error")
-            return redirect(url_for("login"))
+        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
 
         if userinfo_response.json().get("email_verified"):
-            unique_id = userinfo_response.json()["sub"]
             users_email = userinfo_response.json()["email"]
-            users_name = userinfo_response.json().get("given_name", "")
+            users_name = userinfo_response.json().get("given_name", users_email.split('@')[0])
         else:
-            flash("Email not verified by Google", "error")
+            flash("Google authentication failed - Email not verified", "error")
             return redirect(url_for("login"))
 
-        try:
-            user = User.query.filter_by(email=users_email).first()
-            if not user:
-                user = User(
-                    google_id=unique_id,
-                    username=users_name,
-                    email=users_email
-                )
-                user.set_password(os.urandom(32).hex())
-                db.session.add(user)
-                db.session.commit()
+        # Create or get user
+        user = User.query.filter_by(email=users_email).first()
+        if not user:
+            user = User(
+                username=users_name,
+                email=users_email,
+            )
+            user.set_password(os.urandom(24).hex())
+            db.session.add(user)
+            db.session.commit()
 
-            login_user(user)
-            session.permanent = True
-
-            return redirect(url_for("home"))
-
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f"Database error: {str(e)}")
-            flash("An error occurred during login", "error")
-            return redirect(url_for("login"))
+        login_user(user)
+        return redirect(url_for("home"))
 
     except Exception as e:
-        app.logger.error(f"Error in callback: {str(e)}")
-        flash("An error occurred during login", "error")
+        app.logger.error(f"Error in Google callback: {str(e)}")
+        flash("An error occurred during Google login", "error")
         return redirect(url_for("login"))
 
 
