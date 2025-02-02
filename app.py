@@ -547,7 +547,7 @@ async def feedback_resume(resume_id):
     feedback_response = resume.feedback_response if resume.feedback_response else await generate_feedback(
         resume.extracted_text, resume.candidate_name)
     return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name,
-                           resume_filename=resume.filename)
+                           resume_filename=resume.filename, page_type='mbnav')
 
 
 @app.route('/edit_resume/<int:resume_id>', methods=['GET', 'POST'])
@@ -555,7 +555,7 @@ async def edit_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
 
     if request.method == 'GET':
-        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name)
+        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name, page_type='mbnav')
 
     elif request.method == 'POST':
         content = request.json.get('content')
@@ -721,7 +721,7 @@ def contact_us():
 
 @app.route('/support-us', methods=['GET', 'POST'])
 def support_us():
-    return render_template('supportus.html')
+    return render_template('supportus.html', page_type='mbnav')
 
 
 with app.app_context():
