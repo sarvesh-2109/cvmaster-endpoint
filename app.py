@@ -319,48 +319,36 @@ def send_email(subject, recipients, body):
         return False
 
 
-@app.route('/reset_password', methods=['GET', 'POST'])
+@app.route('/reset_password', methods=['POST'])
 def reset_password():
-    if request.method == 'POST':
-        email = request.form.get('email')
-
-        # Check if email is provided
-        if not email:
-            return jsonify({
-                'status': 'error',
-                'message': 'Please enter an email address'
-            })
-
-        # Check if user exists in database
-        user = User.query.filter_by(email=email).first()
-
-        if not user:
-            return jsonify({
-                'status': 'error',
-                'message': 'No account found with this email address'
-            })
-
-        # If user exists, proceed with OTP generation and email sending
-        otp = ''.join(random.choices(string.digits, k=6))
-        session['otp'] = otp
-        session['email'] = email
-
-        email_subject = "Your OTP for Password Reset"
-        email_body = f"Your OTP is: {otp}"
-
-        if send_email(email_subject, [email], email_body):
-            return jsonify({
-                'status': 'success',
-                'message': 'OTP sent to your email. Please check your inbox.',
-                'redirect': url_for('verify_otp')
-            })
-        else:
-            return jsonify({
-                'status': 'error',
-                'message': 'Error sending email. Please try again later.'
-            })
-
-    return render_template('reset_password.html')
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({
+            'status': 'error',
+            'message': 'Please enter an email address'
+        })
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({
+            'status': 'error',
+            'message': 'No account found with this email address'
+        })
+    otp = ''.join(random.choices(string.digits, k=6))
+    session['otp'] = otp
+    session['email'] = email
+    email_subject = "Your OTP for Password Reset"
+    email_body = f"Your OTP is: {otp}"
+    if send_email(email_subject, [email], email_body):
+        return jsonify({
+            'status': 'success',
+            'message': 'OTP sent to your email. Please check your inbox.'
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'message': 'Error sending email. Please try again later.'
+        })
 
 
 @app.route('/verify_otp', methods=['GET', 'POST'])
@@ -372,35 +360,35 @@ def verify_otp():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False})
-    return render_template('reset_password.html')
+    return render_template('verify_otp.html')
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
     try:
         if 'email' not in session:
-            return jsonify({'success': False, 'message': 'No session email found'})
-
+            return redirect(url_for('login'))
         if request.method == 'POST':
+            # Here we expect two fields: new_password and confirm_password (validated client-side as well).
             if request.is_json:
                 data = request.get_json()
                 new_password = data.get('new_password')
+                confirm_password = data.get('confirm_password')
             else:
                 new_password = request.form.get('new_password')
-
+                confirm_password = request.form.get('confirm_password')
+            if new_password != confirm_password:
+                return jsonify({'success': False, 'message': 'Passwords do not match'})
             user = User.query.filter_by(email=session.get('email')).first()
-
             if user:
                 user.set_password(new_password)
                 db.session.commit()
                 session.pop('email', None)
                 session.pop('otp', None)
-                return jsonify({'success': True})
-
+                flash('Password updated successfully! Please log in.', 'success')
+                return redirect(url_for('login'))
             return jsonify({'success': False, 'message': 'User not found'})
-
-        return render_template('reset_password.html')
-
+        return render_template('reset_password.html')  # Ensure your reset_password.html shows fields for new and confirm password.
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
