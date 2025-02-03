@@ -54,14 +54,14 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-
 # Ensure default value is set
-app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT', 'http://localhost:5000/login/google/callback')
+app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
+                                                     'http://localhost:5000/login/google/callback')
 
 # Enable insecure transport in development
-if app.config['GOOGLE_OAUTH_REDIRECT'] and ('localhost' in app.config['GOOGLE_OAUTH_REDIRECT'] or '127.0.0.1' in app.config['GOOGLE_OAUTH_REDIRECT']):
+if app.config['GOOGLE_OAUTH_REDIRECT'] and (
+        'localhost' in app.config['GOOGLE_OAUTH_REDIRECT'] or '127.0.0.1' in app.config['GOOGLE_OAUTH_REDIRECT']):
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
@@ -80,6 +80,7 @@ FAISS_DIR = os.path.join(os.path.dirname(__file__), 'faiss_indices')
 
 # Set the interval to delete the directory (e.g., one hour)
 DELETE_INTERVAL_MS = 1 * 60 * 60 * 1000  # 1 hour
+
 
 # Function to delete Faiss Indices
 def deleteFAISSDirectory():
@@ -157,7 +158,7 @@ class RegistrationForm(FlaskForm):
 
 @app.route('/')
 def landing():
-    return render_template('landing.html', layout_type ='navbar')
+    return render_template('landing.html', layout_type='navbar')
 
 
 app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
@@ -275,7 +276,7 @@ def signup():
         # If form validation fails
         return render_template('signup.html', form=form)
 
-    return render_template('signup.html', form=form, layout_type ='navbar')
+    return render_template('signup.html', form=form, layout_type='navbar')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -293,7 +294,7 @@ def login():
         flash('Invalid email or password', 'error')
         return redirect(url_for('login'))
 
-    return render_template('login.html', layout_type ='navbar')
+    return render_template('login.html', layout_type='navbar')
 
 
 @app.route('/logout')
@@ -353,7 +354,7 @@ def verify_otp():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False})
-    return render_template('verify_otp.html')
+    return render_template('verify_otp.html', )
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -381,7 +382,7 @@ def change_password():
                 flash('Password updated successfully! Please log in.', 'success')
                 return redirect(url_for('login'))
             return jsonify({'success': False, 'message': 'User not found'})
-        return render_template('reset_password.html')  # Ensure your reset_password.html shows fields for new and confirm password.
+        return render_template('reset_password.html', layout_type='navbar')  # Ensure your reset_password.html shows fields for new and confirm password.
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
@@ -434,6 +435,7 @@ async def home():
 
     resumes = Resume.query.filter_by(user_id=current_user.id).order_by(Resume.id.desc()).all()
     return render_template('home.html', resumes=resumes, page_type='mbnav')
+
 
 @app.route('/view_resume/<int:resume_id>')
 def view_resume(resume_id):
@@ -510,7 +512,8 @@ async def feedback_resume(resume_id):
         if action == 'regenerate':
             feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, page_type='mbnav')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename,
+                                   page_type='mbnav')
 
         elif action == 'save':
             feedback_response = request.form.get('feedback_response')
@@ -518,7 +521,8 @@ async def feedback_resume(resume_id):
             db.session.commit()
             flash('Feedback saved successfully!', 'success')  # Add a success flash message
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, page_type='mbnav')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename,
+                                   page_type='mbnav')
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
@@ -535,7 +539,8 @@ async def edit_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
 
     if request.method == 'GET':
-        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name, page_type='mbnav')
+        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name,
+                               page_type='mbnav')
 
     elif request.method == 'POST':
         content = request.json.get('content')
@@ -701,7 +706,6 @@ def contact_us():
 
 @app.route('/support-us', methods=['GET', 'POST'])
 def support_us():
-
     return render_template('supportus.html', page_type='mbnav')
 
 
