@@ -360,7 +360,7 @@ def verify_otp():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False})
-    return render_template('verify_otp.html')
+    return render_template('verify_otp.html', layout_type ='navbar')
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -388,7 +388,7 @@ def change_password():
                 flash('Password updated successfully! Please log in.', 'success')
                 return redirect(url_for('login'))
             return jsonify({'success': False, 'message': 'User not found'})
-        return render_template('reset_password.html')  # Ensure your reset_password.html shows fields for new and confirm password.
+        return render_template('reset_password.html', layout_type='navbar')  # Ensure your reset_password.html shows fields for new and confirm password.
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
