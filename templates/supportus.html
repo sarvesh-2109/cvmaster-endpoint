@@ -1,71 +1,49 @@
-
 {# supportus.html #}
 {% extends "base.html" %}
 
 {% block title %}CvMaster{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="max-w-2xl w-full bg-white p-4 lg:p-8 rounded-xl shadow-sm">
-        <h2 class="text-xl lg:text-2xl font-bold text-blue-600 mb-6">Support CvMaster</h2>
+<div class="h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div class="w-full max-w-6xl bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex flex-col gap-8">
+            <!-- Left side: Why Support Us -->
+            <div class="space-y-4">
+                <h2 class="text-2xl font-bold text-blue-600">Support CvMaster</h2>
+                <div class="bg-blue-50 p-6 rounded-lg">
+                  <h3 class="text-lg font-semibold text-blue-600 mb-4">Why Support Us?</h3>
+                  <div class="text-gray-700">
+                    <ol class="list-decimal list-inside space-y-3">
+                      <li class="pl-2"><strong>Keep the website running:</strong></li>
+                      <li class="pl-2"><strong>Fuel platform upgrades:</strong></li>
+                      <li class="pl-2"><strong>Unlock future features:</strong></li>
+                      <li class="pl-2"><strong>Empower global job seekers:</strong></li>
+                    </ol>
+                  </div>
+                </div>
+            </div>
 
-    
-    <div class="space-y-10">
-        <div class="bg-blue-50 p-4 lg:p-8 rounded-lg">
-            <h3 class="text-lg font-semibold text-blue-600 mb-4">Why Support Us?</h3>
-            <p class="text-gray-700 text-sm lg:text-base">By supporting CvMaster, you help us continue running the application, improving our platform, adding new features, and helping job seekers worldwide.</p>
+            <!-- Right side: Payment Info -->
+            <div class="text-center w-full space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">UPI Payment</h3>
+                <p class="text-gray-600 mb-4">Scan QR code or use UPI ID</p>
+
+                <!-- QR Code Image -->
+                <div class="flex justify-center mb-4">
+                    <img src="{{ url_for('static', filename='qrcode.jpg') }}" 
+                         alt="Payment QR Code" 
+                         class="w-40 h-40 object-contain">
+                </div>
+
+                <!-- UPI ID -->
+                <div class="bg-gray-50 p-3 rounded-lg inline-block">
+                    <p class="text-gray-500 text-sm mb-1">UPI ID:</p>
+                    <p class="text-blue-600 font-semibold select-all">cvmaster@slice</p>
+                </div>
+            </div>
         </div>
-
-        <form action="{{ url_for('support_us') }}" method="POST" class="space-y-4 lg:space-y-6">
-            <div>
-                <label for="donation_amount" class="block text-sm font-medium text-gray-700 mb-1">Donation Amount</label>
-                <select id="donation_amount" name="donation_amount" required
-                    class="block w-full px-3 py-2 lg:px-4 lg:py-2 text-sm lg:text-base border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                    <option value="">Select Amount</option>
-                    <option value="5">$5</option>
-                    <option value="10">$10</option>
-                    <option value="25">$25</option>
-                    <option value="50">$50</option>
-                    <option value="100">$100</option>
-                    <option value="custom">Custom Amount</option>
-                </select>
-            </div>
-
-            <div id="custom_amount_div" class="hidden">
-                <label for="custom_amount" class="block text-sm font-medium text-gray-700 mb-1">Custom Amount</label>
-                <input type="number" id="custom_amount" name="custom_amount" min="1"
-                    class="block w-full px-3 py-2 lg:px-4 lg:py-2 text-sm lg:text-base border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
-            </div>
-
-            <div>
-                <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-                <select id="payment_method" name="payment_method" required
-                    class="block w-full px-3 py-2 lg:px-4 lg:py-2 text-sm lg:text-base border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                    <option value="">Select Payment Method</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="credit_card">Credit Card</option>
-                    <option value="stripe">Stripe</option>
-                </select>
-            </div>
-
-            <div>
-                <button type="submit"
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 text-sm lg:text-base">
-                    Support CvMaster
-                </button>
-            </div>
-        </form>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
-{{ super() }}
-<script>
-    // Handle donation amount selection
-    document.getElementById('donation_amount').addEventListener('change', function() {
-        const customAmountDiv = document.getElementById('custom_amount_div');
-        customAmountDiv.classList.toggle('hidden', this.value !== 'custom');
-    });
-</script>
+
 {% endblock %}
