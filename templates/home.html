@@ -113,6 +113,43 @@
         height: 3rem;
         margin-bottom: 0.75rem;
     }
+
+    .instruction-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+    }
+
+    .instruction-modal .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    /* Highlight animation for the three dots icon */
+    @keyframes pulseHighlight {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .highlight-dots {
+        animation: pulseHighlight 1s ease-in-out;
+    }
+
 </style>
 {% endblock %}
 
@@ -168,6 +205,7 @@
                            class="block px-4 py-2 text-sm hover:bg-blue-50 transition-colors">Cover Letter</a>
                         <a href="{{ url_for('ats_analysis', resume_id=resume.id) }}"
                            class="block px-4 py-2 text-sm hover:bg-blue-50 transition-colors">ATS Analysis</a>
+                        
                     </div>
                 </div>
             </div>
@@ -193,6 +231,33 @@
         </div>
     </div>
 </div>
+
+
+
+<!--new instruction modal -->
+<div id="instructionModal" class="instruction-modal" style="display: none;">
+    <div class="modal-content">
+        <div class="mb-4">
+            <i class="bi bi-info-circle text-blue-500 text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">Resume Uploaded Successfully!</h3>
+        <p class="text-gray-600 mb-6">Click on the three dots (<i class="bi bi-three-dots"></i>) to perform actions like:</p>
+        <ul class="text-left text-gray-600 mb-6 ml-4">
+            <li class="mb-2">• Roast your resume</li>
+            <li class="mb-2">• Get resume feedback</li>
+            <li class="mb-2">• Generate cover letter</li>
+            <li class="mb-2">• Analyzing ATS compatibility</li>
+            <li class="mb-2">• Edit your resume</li>
+
+        </ul>
+        <button onclick="closeInstructionModal()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Got it!
+        </button>
+    </div>
+</div>
+
+
 {% endblock %}
 
 {% block scripts %}
@@ -239,6 +304,25 @@
         return false;
     }
 
+    // Instruction modal functions
+    function showInstructionModal() {
+        const modal = document.getElementById('instructionModal');
+        modal.style.display = 'flex';
+        // Highlight all three dots buttons
+        document.querySelectorAll('.bi-three-dots').forEach(icon => {
+            icon.parentElement.classList.add('highlight-dots');
+        });
+    }
+
+    function closeInstructionModal() {
+        const modal = document.getElementById('instructionModal');
+        modal.style.display = 'none';
+        // Remove highlight from three dots buttons
+        document.querySelectorAll('.bi-three-dots').forEach(icon => {
+            icon.parentElement.classList.remove('highlight-dots');
+        });
+    }
+
     // Initialize all event listeners when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
         // Handle delete form submissions
@@ -250,17 +334,45 @@
             };
         });
 
-        // Close modal when clicking outside
+        // Add handler for file upload
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('resume_file');
+
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                // Submit the form
+                uploadForm.submit();
+                // Store in sessionStorage that we just uploaded a file
+                sessionStorage.setItem('showInstructionModal', 'true');
+            }
+        });
+
+        // Check if we should show the instruction modal (after page reload)
+        if (sessionStorage.getItem('showInstructionModal') === 'true') {
+            showInstructionModal();
+            // Clear the flag
+            sessionStorage.removeItem('showInstructionModal');
+        }
+
+        // Close delete modal when clicking outside
         document.getElementById('deleteModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeleteModal();
             }
         });
 
-        // Add escape key handler for modal
+        // Close instruction modal when clicking outside
+        document.getElementById('instructionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInstructionModal();
+            }
+        });
+
+        // Add escape key handler for both modals and dropdowns
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeDeleteModal();
+                closeInstructionModal();
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
                     menu.style.display = 'none';
                 });
