@@ -105,11 +105,6 @@ cleanup_thread.daemon = True
 cleanup_thread.start()
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
 def allowed_file(filename):
     """Check if the file is allowed based on its extension."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -127,6 +122,11 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 # Define the Resume model
@@ -154,6 +154,12 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email is already in use. Please choose a different one.')
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email(message='Enter a valid email')])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
 
 
 @app.route('/')
@@ -294,20 +300,19 @@ def check_email_exists():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    form = LoginForm()  # Create login form instance for CSRF and fields
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
 
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
-
         flash('Invalid email or password', 'error')
         return redirect(url_for('login'))
-
-    return render_template('login.html', layout_type='navbar')
+    return render_template('login.html', form=form, layout_type='navbar')
 
 
 @app.route('/logout')
@@ -319,10 +324,11 @@ def logout():
 
 def send_email(subject, recipients, body):
     try:
-        msg = Message(subject, recipients=recipients, body=body, sender=app.config['MAIL_DEFAULT_SENDER'])
+        msg = Message(subject, recipients=recipients, body=body)
         mail.send(msg)
         return True
     except Exception as e:
+        print("Email send error:", e)
         return False
 
 
@@ -367,37 +373,34 @@ def verify_otp():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False})
-    return render_template('verify_otp.html', )
+    return render_template('verify_otp.html')
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
-    try:
-        if 'email' not in session:
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json()
+            new_password = data.get('new_password')
+            confirm_password = data.get('confirm_password')
+        else:
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+
+        if new_password != confirm_password:
+            return jsonify({'success': False, 'message': 'Passwords do not match'})
+        user = User.query.filter_by(email=session.get('email')).first()
+        if user:
+            user.set_password(new_password)
+            db.session.commit()
+            session.pop('email', None)
+            session.pop('otp', None)
+            flash('Password updated successfully! Please log in.', 'success')
             return redirect(url_for('login'))
-        if request.method == 'POST':
-            # Here we expect two fields: new_password and confirm_password (validated client-side as well).
-            if request.is_json:
-                data = request.get_json()
-                new_password = data.get('new_password')
-                confirm_password = data.get('confirm_password')
-            else:
-                new_password = request.form.get('new_password')
-                confirm_password = request.form.get('confirm_password')
-            if new_password != confirm_password:
-                return jsonify({'success': False, 'message': 'Passwords do not match'})
-            user = User.query.filter_by(email=session.get('email')).first()
-            if user:
-                user.set_password(new_password)
-                db.session.commit()
-                session.pop('email', None)
-                session.pop('otp', None)
-                flash('Password updated successfully! Please log in.', 'success')
-                return redirect(url_for('login'))
-            return jsonify({'success': False, 'message': 'User not found'})
-        return render_template('reset_password.html', layout_type='navbar')  # Ensure your reset_password.html shows fields for new and confirm password.
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': 'User not found'})
+    return render_template('reset_password.html', layout_type='navbar')
 
 
 @app.route('/home', methods=['GET', 'POST'])
