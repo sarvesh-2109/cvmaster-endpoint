@@ -279,6 +279,19 @@ def signup():
     return render_template('signup.html', form=form, layout_type='navbar')
 
 
+@app.route('/check_email_exists', methods=['POST'])
+def check_email_exists():
+    data = request.get_json()
+    email = data.get('email')
+
+    # Check if email already exists in the database
+    existing_user = User.query.filter_by(email=email).first()
+
+    return jsonify({
+        'exists': existing_user is not None
+    })
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
