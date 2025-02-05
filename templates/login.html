@@ -141,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle form submission
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        console.log('Form submitted');
 
         const formData = new FormData(form);
 
@@ -154,14 +153,12 @@ document.addEventListener('DOMContentLoaded', function() {
             credentials: 'same-origin'
         })
         .then(response => {
-            console.log('Response status:', response.status);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Response data:', data);
 
             if (!data.success) {
                 displayError('Invalid username or password');
@@ -172,13 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('Login error:', error);
             displayError('Invalid email or password');
         });
     });
 
     function displayError(message) {
-        console.log('Displaying error:', message);
         clearError();
 
         // Create error message element
@@ -200,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
             form.appendChild(errorEl);
         }
 
-        console.log('Error message element added to DOM');
     }
 
     function clearError() {

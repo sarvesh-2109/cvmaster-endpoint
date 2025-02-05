@@ -3,47 +3,56 @@
 
 {% block title %}CvMaster{% endblock %}
 
+{% block extra_css %}
+<style>
+    html, body {
+        height: 100vh;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="h-screen flex items-center justify-center bg-gray-100 px-4">
-    <div class="w-full max-w-6xl bg-white p-6 rounded-xl shadow-sm">
-        <div class="flex flex-col gap-8">
-            <!-- Left side: Why Support Us -->
-            <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-blue-600">Support CvMaster</h2>
-                <div class="bg-blue-50 p-6 rounded-lg">
-                  <h3 class="text-lg font-semibold text-blue-600 mb-4">Why Support Us?</h3>
-                  <div class="text-gray-700">
-                    <ol class="list-decimal list-inside space-y-3">
-                      <li class="pl-2"><strong>Keep the website running</strong></li>
-                      <li class="pl-2"><strong>Fuel platform upgrades</strong></li>
-                      <li class="pl-2"><strong>Unlock future features</strong></li>
-                      <li class="pl-2"><strong>Empower global job seekers</strong></li>
-                    </ol>
-                  </div>
-                </div>
-            </div>
-
-            <!-- Right side: Payment Info -->
-            <div class="text-center w-full space-y-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">UPI Payment</h3>
-                <p class="text-gray-600 mb-4">Scan QR code or use UPI ID</p>
-
-                <!-- QR Code Image -->
-                <div class="flex justify-center mb-4">
-                    <img src="{{ url_for('static', filename='qrcode.jpg') }}"
-                         alt="Payment QR Code"
-                         class="w-40 h-40 object-contain">
+<div class="h-[calc(100vh-6rem)] lg:h-[calc(100vh-5rem)] flex items-center justify-center">
+    <div class="w-full max-w-7xl px-6">
+        <div class="bg-white p-8 rounded-xl shadow-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Left side: Why Support Us -->
+                <div class="space-y-6">
+                    <h2 class="text-3xl font-bold text-blue-600">Support CvMaster</h2>
+                    <div class="bg-blue-50 p-8 rounded-lg">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-4">Why Support Us?</h3>
+                        <div class="text-gray-700">
+                            <ol class="list-decimal list-inside space-y-4">
+                                <li class="pl-2 text-lg"><strong>Keep the website running</strong></li>
+                                <li class="pl-2 text-lg"><strong>Fuel platform upgrades</strong></li>
+                                <li class="pl-2 text-lg"><strong>Unlock future features</strong></li>
+                                <li class="pl-2 text-lg"><strong>Empower global job seekers</strong></li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- UPI ID -->
-                <div class="bg-gray-50 p-3 rounded-lg inline-block">
-                    <p class="text-gray-500 text-sm mb-1">UPI ID:</p>
-                    <p class="text-blue-600 font-semibold select-all">cvmaster@slice</p>
+                <!-- Right side: Payment Info -->
+                <div class="text-center space-y-6">
+                    <h3 class="text-xl font-semibold text-gray-800">UPI Payment</h3>
+                    <p class="text-gray-600 text-lg">Scan QR code or use UPI ID</p>
+
+                    <!-- QR Code Image -->
+                    <div class="flex justify-center">
+                        <img src="{{ url_for('static', filename='qrcode.jpg') }}"
+                             alt="Payment QR Code"
+                             class="w-48 h-48 object-contain">
+                    </div>
+
+                    <!-- UPI ID -->
+                    <div class="bg-gray-50 p-4 rounded-lg inline-block">
+                        <p class="text-gray-500 text-md mb-1">UPI ID:</p>
+                        <p class="text-blue-600 font-semibold select-all text-lg">cvmaster@slice</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
 {% endblock %}

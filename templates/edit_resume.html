@@ -1,10 +1,17 @@
 {# edit_resume.html #}
 {% extends "base.html" %}
 
-{% block title %}CvMaster{% endblock %}
+{% block extra_css %}
+<style>
+    .form-input:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        border-color: #3b82f6;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pt-16 lg:pt-2">
+<div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-xl shadow-sm p-4 lg:p-8 hover-card">
         <h2 class="text-2xl font-bold text-blue-600 mb-4 lg:mb-6 text-center">Edit Resume for {{ candidate_name }}</h2>
 
@@ -19,7 +26,7 @@
                     id="content"
                     name="content"
                     rows="15"
-                    class="form-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none custom-scrollbar"
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none custom-scrollbar"
                     placeholder="Copy and paste the bullet point(s) from your project or experience section that you'd like to enhance. Click 'Regenerate' to get a polished, professional version of your content."></textarea>
             </div>
 
@@ -39,7 +46,7 @@
         <div class="flex flex-col lg:flex-row gap-3 mt-6">
             <button
                 id="regenerate"
-                class="submit-button flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
+                class="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition duration-200 flex items-center justify-center space-x-2 touch-manipulation">
                 <i class="bi bi-arrow-clockwise"></i>
                 <span>Regenerate</span>
             </button>
@@ -60,7 +67,6 @@
 {% endblock %}
 
 {% block scripts %}
-{{ super() }}
 <script>
     // Resume regeneration functionality
     document.getElementById('regenerate').addEventListener('click', function() {
@@ -83,17 +89,24 @@
             },
             body: JSON.stringify({content: content}),
         })
-        .then(response => response.json())
-        .then(data => {
-            resultDiv.innerHTML = data.improved_content.replace(/\n/g, '<br>');
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            resultDiv.innerHTML = '<p class="text-red-500">Error generating improved content. Please try again.</p>';
-        })
-        .finally(() => {
-            loadingIndicator.style.display = 'none';
-        });
+        .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(data => {
+    resultDiv.innerHTML = data.improved_content.replace(/\n/g, '<br>');
+    loadingIndicator.style.display = 'none'; // Add this line
+})
+.catch((error) => {
+    resultDiv.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+    loadingIndicator.style.display = 'none'; // Add this line to hide loading even on error
+});
     });
+
+
+
+
 </script>
 {% endblock %}
