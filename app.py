@@ -300,18 +300,21 @@ def check_email_exists():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()  # Create login form instance for CSRF and fields
+    form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
             login_user(user)
-            flash('Login successful!', 'success')
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'redirect_url': url_for('home')})
             return redirect(url_for('home'))
-        flash('Invalid email or password', 'error')
-        return redirect(url_for('login'))
+
+        # Invalid credentials
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': 'Invalid email or password'})
+
+    # For normal GET requests, render the template
     return render_template('login.html', form=form, layout_type='navbar')
 
 

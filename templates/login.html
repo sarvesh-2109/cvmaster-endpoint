@@ -118,66 +118,99 @@
 </div>
 
 <script>
-// Add email existence validation
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
     const emailInput = document.querySelector('input[name="email"]');
-    const emailInputDiv = emailInput.closest('div');
-    const form = emailInput.closest('form');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const emailDiv = emailInput.closest('div.mt-1').parentElement;
+    const hoverCard = document.querySelector('.hover-card');
 
+    // Basic email format validation
     emailInput.addEventListener('blur', function() {
         const email = this.value.trim();
-
-        // Basic email format validation first
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
         if (!emailRegex.test(email)) {
-            displayEmailError('Please enter a valid email address', emailInputDiv);
+            displayError('Please enter a valid email address');
             return;
         }
+        clearError();
+    });
 
-        // Check email existence via AJAX
-        fetch("{{ url_for('check_email_exists') }}", {
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted');
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ email: email })
+            body: formData,
+            credentials: 'same-origin'
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            if (!data.exists) {
-                displayEmailError('No account found with this email', emailInputDiv);
+            console.log('Response data:', data);
+
+            if (!data.success) {
+                displayError('Invalid username or password');
+                return false;
             } else {
-                clearEmailError(emailInputDiv);
+                clearError();
+                window.location.href = data.redirect_url || '/home';
             }
         })
         .catch(error => {
-            console.error('Error checking email:', error);
+            console.error('Login error:', error);
+            displayError('Invalid email or password');
         });
     });
 
-    function displayEmailError(message, parentElement) {
-        // Remove any existing error first
-        clearEmailError(parentElement);
+    function displayError(message) {
+        console.log('Displaying error:', message);
+        clearError();
 
         // Create error message element
         const errorEl = document.createElement('p');
         errorEl.textContent = message;
-        errorEl.id = 'email-error';
-        errorEl.className = 'text-red-600 text-sm mt-1';
+        errorEl.id = 'form-error';
+        errorEl.className = 'text-red-600 text-sm mt-2 text-center';
 
-        // Add the error message to the parent element
-        parentElement.appendChild(errorEl);
-
-        // Add a red border to the input
+        // Add error styles to inputs
         emailInput.classList.add('border-red-500');
+        passwordInput.classList.add('border-red-500');
+
+        // Insert error message before the submit button
+        const submitDiv = form.querySelector('div:has(input[type="submit"])');
+        if (submitDiv) {
+            form.insertBefore(errorEl, submitDiv);
+        } else {
+            // Fallback - insert at the end of the form
+            form.appendChild(errorEl);
+        }
+
+        console.log('Error message element added to DOM');
     }
 
-    function clearEmailError(parentElement) {
-        const existingError = parentElement.querySelector('#email-error');
+    function clearError() {
+        const existingError = document.querySelector('#form-error');
         if (existingError) {
             existingError.remove();
         }
+
+        // Remove error styles from inputs
         emailInput.classList.remove('border-red-500');
+        passwordInput.classList.remove('border-red-500');
     }
 });
 
