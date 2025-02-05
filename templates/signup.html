@@ -9,8 +9,8 @@
     </div>
 
     <div class="hover-card bg-white p-8 rounded-xl shadow-lg space-y-6">
-        <form id="signupForm" action="{{ url_for('signup') }}" method="POST" class="space-y-6">
-            {{ form.hidden_tag() }}
+        <form id="signupForm" class="space-y-6">
+            {{ form.csrf_token }}
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
@@ -63,8 +63,28 @@
                 </div>
             </div>
 
+            <!-- Message Display -->
+            <div id="messageDisplay" class="text-center text-sm hidden"></div>
+
+            <!-- Timer Display -->
+            <div id="timerDisplay" class="text-center text-sm text-gray-600 hidden"></div>
+
+            <!-- Initial Submit Button -->
             <div>
-                {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200") }}
+                {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200", id="submitButton") }}
+            </div>
+
+            <!-- OTP Input Section -->
+            <div id="otpInputDiv" class="hidden">
+                <label for="otp" class="block text-sm font-medium text-gray-700">Enter the OTP sent to your email</label>
+                <input type="text" id="otp" name="otp" class="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+            </div>
+
+            <!-- Submit OTP Button -->
+            <div id="submitOtpDiv" class="hidden">
+                <button type="button" id="submitOtpButton" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200">
+                    Submit OTP
+                </button>
             </div>
         </form>
 
@@ -109,6 +129,23 @@
         }
     }
 
+    function disableButtonForSeconds(button, seconds) {
+        button.disabled = true;
+        let timerDisplay = document.getElementById('timerDisplay');
+        timerDisplay.classList.remove('hidden');
+        let remaining = seconds;
+        timerDisplay.textContent = `Please wait ${remaining} seconds...`;
+        let interval = setInterval(function() {
+            remaining--;
+            timerDisplay.textContent = `Please wait ${remaining} seconds...`;
+            if (remaining <= 0) {
+                clearInterval(interval);
+                timerDisplay.classList.add('hidden');
+                button.disabled = false;
+            }
+        }, 1000);
+    }
+
     // Email existence check
     document.getElementById('email').addEventListener('blur', function() {
         const email = this.value;
@@ -141,40 +178,131 @@
         });
     });
 
-    // Prevent form submission if errors exist (email or password mismatch)
+    // Replace your current form submission code with this
     document.getElementById('signupForm').addEventListener('submit', function(event) {
-        // Email error check (if visible, prevent submission)
-        const emailInput = document.getElementById('email');
+        event.preventDefault(); // Prevent default form submission
+
+        // For debugging
+        console.log("Form submitted");
+
+        // Email error check
         const emailErrorDiv = document.getElementById('email-error');
         if (!emailErrorDiv.classList.contains('hidden')) {
-            event.preventDefault();
-            emailInput.focus();
+            document.getElementById('email').focus();
             return;
         }
 
-        // Password matching error handling
+        // Password matching check
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm_password');
-        const passwordErrorDiv = document.getElementById('password-error');
-        const confirmPasswordErrorDiv = document.getElementById('confirm-password-error');
-
         if (passwordInput.value !== confirmPasswordInput.value) {
-            passwordErrorDiv.textContent = 'Passwords do not match.';
-            confirmPasswordErrorDiv.textContent = 'Passwords do not match.';
-            passwordErrorDiv.classList.remove('hidden');
-            confirmPasswordErrorDiv.classList.remove('hidden');
-            passwordInput.classList.add('border-red-500');
-            confirmPasswordInput.classList.add('border-red-500');
-            event.preventDefault();
-            passwordInput.focus();
-        } else {
-            passwordErrorDiv.textContent = '';
-            confirmPasswordErrorDiv.textContent = '';
-            passwordErrorDiv.classList.add('hidden');
-            confirmPasswordErrorDiv.classList.add('hidden');
-            passwordInput.classList.remove('border-red-500');
-            confirmPasswordInput.classList.remove('border-red-500');
+            // Your existing password mismatch code
+            return;
         }
+
+        // Get the CSRF token
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        // Collect form data
+        const formData = {
+            csrf_token: csrfToken,
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: passwordInput.value,
+        };
+
+        // For debugging
+        console.log("Sending data:", formData);
+
+        // Send signup request
+        fetch("{{ url_for('signup') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            // For debugging
+            console.log("Response received:", response);
+            return response.json();
+        })
+        .then(data => {
+            // For debugging
+            console.log("Data received:", data);
+
+            if (data.status === 'success') {
+                // Show OTP input
+                const otpInput = document.getElementById('otp');
+                otpInput.setAttribute('required', 'required'); // Add required attribute
+                document.getElementById('otpInputDiv').classList.remove('hidden');
+                document.getElementById('submitOtpDiv').classList.remove('hidden');
+                document.getElementById('submitButton').classList.add('hidden');
+
+                // Show message
+                const messageDisplay = document.getElementById('messageDisplay');
+                messageDisplay.textContent = 'Please check your email for the OTP.';
+                messageDisplay.classList.remove('hidden');
+                messageDisplay.classList.remove('text-red-500');
+                messageDisplay.classList.add('text-green-500');
+            }
+        })
+        .catch(error => {
+            // For debugging
+            console.error('Error:', error);
+
+            const messageDisplay = document.getElementById('messageDisplay');
+            messageDisplay.textContent = 'An error occurred. Please try again.';
+            messageDisplay.classList.remove('hidden');
+            messageDisplay.classList.add('text-red-500');
+        });
+    });
+
+        // Handle OTP submission
+    document.getElementById('submitOtpButton').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const otp = document.getElementById('otp').value;
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        // Disable the button and show loading state
+        this.disabled = true;
+        const messageDisplay = document.getElementById('messageDisplay');
+        messageDisplay.textContent = 'Verifying OTP...';
+        messageDisplay.classList.remove('hidden');
+
+        fetch("{{ url_for('verify_signup_otp') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ otp: otp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                messageDisplay.textContent = 'Account created successfully! Redirecting...';
+                messageDisplay.classList.remove('text-red-500');
+                messageDisplay.classList.add('text-green-500');
+
+                // Redirect to home page after successful verification
+                window.location.href = "{{ url_for('home') }}";
+            } else {
+                messageDisplay.textContent = data.message || 'Invalid OTP. Please try again.';
+                messageDisplay.classList.remove('text-green-500');
+                messageDisplay.classList.add('text-red-500');
+                this.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messageDisplay.textContent = 'An error occurred. Please try again.';
+            messageDisplay.classList.remove('text-green-500');
+            messageDisplay.classList.add('text-red-500');
+            this.disabled = false;
+        });
     });
 </script>
 {% endblock %}
