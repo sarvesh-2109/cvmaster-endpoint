@@ -195,9 +195,26 @@
         // Password matching check
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm_password');
+        const passwordErrorDiv = document.getElementById('password-error');
+        const confirmPasswordErrorDiv = document.getElementById('confirm-password-error');
+
         if (passwordInput.value !== confirmPasswordInput.value) {
-            // Your existing password mismatch code
+            passwordErrorDiv.textContent = 'Passwords do not match.';
+            confirmPasswordErrorDiv.textContent = 'Passwords do not match.';
+            passwordErrorDiv.classList.remove('hidden');
+            confirmPasswordErrorDiv.classList.remove('hidden');
+            passwordInput.classList.add('border-red-500');
+            confirmPasswordInput.classList.add('border-red-500');
+            event.preventDefault();
+            passwordInput.focus();
             return;
+        } else {
+            passwordErrorDiv.textContent = '';
+            confirmPasswordErrorDiv.textContent = '';
+            passwordErrorDiv.classList.add('hidden');
+            confirmPasswordErrorDiv.classList.add('hidden');
+            passwordInput.classList.remove('border-red-500');
+            confirmPasswordInput.classList.remove('border-red-500');
         }
 
         // Get the CSRF token
