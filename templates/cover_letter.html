@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}CvMaster{% endblock %}
-
 {% block extra_css %}
 <style>
     /* Cover Letter Specific Styles */
@@ -93,12 +91,22 @@
     #cover-letter-result .space-y-6 > :not([hidden]) ~ :not([hidden]) {
         margin-top: 1.5rem;
     }
+
+    .form-spacing {
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 1023px) {
+        .form-spacing {
+            margin-top: 0.5rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pt-16 lg:pt-2">
-    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card">
+<div class="w-full">
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold text-blue-600 mb-4 lg:mb-6 text-center">Cover Letter Generator</h2>
 
         <form hx-post="/generate_cover_letter" hx-target="#cover-letter-result" hx-indicator="#loading" class="space-y-4 form-spacing">
@@ -195,10 +203,8 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
-{{ super() }}
+<!-- HTMX Script -->
 <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 <script>
     // HTMX after swap handler

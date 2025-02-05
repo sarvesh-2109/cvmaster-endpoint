@@ -173,17 +173,13 @@
                 this.classList.remove('border-red-500');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+
     });
 
     // Replace your current form submission code with this
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent default form submission
 
-        // For debugging
-        console.log("Form submitted");
 
         // Email error check
         const emailErrorDiv = document.getElementById('email-error');
@@ -228,8 +224,6 @@
             password: passwordInput.value,
         };
 
-        // For debugging
-        console.log("Sending data:", formData);
 
         // Send signup request
         fetch("{{ url_for('signup') }}", {
@@ -241,13 +235,9 @@
             body: JSON.stringify(formData)
         })
         .then(response => {
-            // For debugging
-            console.log("Response received:", response);
             return response.json();
         })
         .then(data => {
-            // For debugging
-            console.log("Data received:", data);
 
             if (data.status === 'success') {
                 // Show OTP input
@@ -266,8 +256,6 @@
             }
         })
         .catch(error => {
-            // For debugging
-            console.error('Error:', error);
 
             const messageDisplay = document.getElementById('messageDisplay');
             messageDisplay.textContent = 'An error occurred. Please try again.';
@@ -314,7 +302,6 @@
             }
         })
         .catch(error => {
-            console.error('Error:', error);
             messageDisplay.textContent = 'An error occurred. Please try again.';
             messageDisplay.classList.remove('text-green-500');
             messageDisplay.classList.add('text-red-500');
