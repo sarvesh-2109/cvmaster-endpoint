@@ -86,19 +86,7 @@
             </div>
         </form>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="mt-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                        <p class="flex items-center">
-                            <i class="bi {% if category == 'success' %}bi-check-circle{% else %}bi-exclamation-circle{% endif %} mr-2"></i>
-                            {{ message }}
-                        </p>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+
     </div>
 </div>
 {% endblock %}
