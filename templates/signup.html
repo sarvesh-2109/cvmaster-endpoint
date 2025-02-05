@@ -6,11 +6,10 @@
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
     <div class="text-center mb-8">
         <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Create your account</h2>
-        <!-- <p class="mt-2 text-gray-600">Join us and start building your perfect resume</p> -->
     </div>
 
     <div class="hover-card bg-white p-8 rounded-xl shadow-lg space-y-6">
-        <form action="{{ url_for('signup') }}" method="POST" class="space-y-6">
+        <form id="signupForm" action="{{ url_for('signup') }}" method="POST" class="space-y-6">
             {{ form.hidden_tag() }}
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -30,7 +29,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="bi bi-envelope text-gray-400"></i>
                         </div>
-                        {{ form.email(class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none") }}
+                        {{ form.email(class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", id="email") }}
+                        <div id="email-error" class="text-red-500 text-sm mt-1 absolute right-0 pr-3 hidden"></div>
                     </div>
                 </div>
 
@@ -40,7 +40,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="bi bi-lock text-gray-400"></i>
                         </div>
-                        {{ form.password(class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none") }}
+                        {{ form.password(class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", id="password") }}
+                        <div id="password-error" class="text-red-500 text-sm mt-1 absolute right-0 pr-3 hidden"></div>
                         <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('password')">
                             <i class="bi bi-eye text-gray-400 hover:text-gray-600" id="password-toggle"></i>
                         </button>
@@ -53,7 +54,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="bi bi-lock-fill text-gray-400"></i>
                         </div>
-                        {{ form.confirm_password(class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none") }}
+                        {{ form.confirm_password(class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", id="confirm_password") }}
+                        <div id="confirm-password-error" class="text-red-500 text-sm mt-1 absolute right-0 pr-3 hidden"></div>
                         <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('confirm_password')">
                             <i class="bi bi-eye text-gray-400 hover:text-gray-600" id="confirm_password-toggle"></i>
                         </button>
@@ -96,7 +98,6 @@
     function togglePasswordVisibility(inputId) {
         const input = document.getElementById(inputId);
         const toggle = document.getElementById(inputId + '-toggle');
-
         if (input.type === 'password') {
             input.type = 'text';
             toggle.classList.remove('bi-eye');
@@ -107,6 +108,73 @@
             toggle.classList.add('bi-eye');
         }
     }
-</script>
 
+    // Email existence check
+    document.getElementById('email').addEventListener('blur', function() {
+        const email = this.value;
+        const emailErrorDiv = document.getElementById('email-error');
+
+        if (!email) return;
+
+        fetch("{{ url_for('check_email_exists') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ form.csrf_token._value() }}'
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                emailErrorDiv.textContent = 'Email is already in use.';
+                emailErrorDiv.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                emailErrorDiv.textContent = '';
+                emailErrorDiv.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Prevent form submission if errors exist (email or password mismatch)
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+        // Email error check (if visible, prevent submission)
+        const emailInput = document.getElementById('email');
+        const emailErrorDiv = document.getElementById('email-error');
+        if (!emailErrorDiv.classList.contains('hidden')) {
+            event.preventDefault();
+            emailInput.focus();
+            return;
+        }
+
+        // Password matching error handling
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const passwordErrorDiv = document.getElementById('password-error');
+        const confirmPasswordErrorDiv = document.getElementById('confirm-password-error');
+
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            passwordErrorDiv.textContent = 'Passwords do not match.';
+            confirmPasswordErrorDiv.textContent = 'Passwords do not match.';
+            passwordErrorDiv.classList.remove('hidden');
+            confirmPasswordErrorDiv.classList.remove('hidden');
+            passwordInput.classList.add('border-red-500');
+            confirmPasswordInput.classList.add('border-red-500');
+            event.preventDefault();
+            passwordInput.focus();
+        } else {
+            passwordErrorDiv.textContent = '';
+            confirmPasswordErrorDiv.textContent = '';
+            passwordErrorDiv.classList.add('hidden');
+            confirmPasswordErrorDiv.classList.add('hidden');
+            passwordInput.classList.remove('border-red-500');
+            confirmPasswordInput.classList.remove('border-red-500');
+        }
+    });
+</script>
 {% endblock %}

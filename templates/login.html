@@ -10,39 +10,40 @@
     </div>
 
     <div class="hover-card bg-white p-8 rounded-xl shadow-lg space-y-6">
-        <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+            {{ form.hidden_tag() }}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
                     <div class="mt-1 relative rounded-md shadow-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="bi bi-envelope text-gray-400"></i>
                         </div>
-                        <input type="email" id="email" name="email" required
-                            class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        {{ form.email(
+                            class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
+                            placeholder="Enter your email"
+                        ) }}
                     </div>
                 </div>
-
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
                     <div class="mt-1 relative rounded-md shadow-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="bi bi-lock text-gray-400"></i>
                         </div>
-                        <input type="password" id="password" name="password" required
-                            class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        {{ form.password(
+                                class="block w-full pl-10 pr-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
+                                placeholder="Enter your password",
+                                id="password"
+                            ) }}
                         <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('password')">
                             <i class="bi bi-eye text-gray-400 hover:text-gray-600" id="password-toggle"></i>
                         </button>
                     </div>
                 </div>
             </div>
-
             <div>
-                <button type="submit"
-                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
-                    Login
-                </button>
+                {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200") }}
             </div>
         </form>
 
@@ -117,6 +118,102 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const emailInput = document.querySelector('input[name="email"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const emailDiv = emailInput.closest('div.mt-1').parentElement;
+    const hoverCard = document.querySelector('.hover-card');
+
+    // Basic email format validation
+    emailInput.addEventListener('blur', function() {
+        const email = this.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            displayError('Please enter a valid email address');
+            return;
+        }
+        clearError();
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted');
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+
+            if (!data.success) {
+                displayError('Invalid username or password');
+                return false;
+            } else {
+                clearError();
+                window.location.href = data.redirect_url || '/home';
+            }
+        })
+        .catch(error => {
+            console.error('Login error:', error);
+            displayError('Invalid email or password');
+        });
+    });
+
+    function displayError(message) {
+        console.log('Displaying error:', message);
+        clearError();
+
+        // Create error message element
+        const errorEl = document.createElement('p');
+        errorEl.textContent = message;
+        errorEl.id = 'form-error';
+        errorEl.className = 'text-red-600 text-sm mt-2 text-center';
+
+        // Add error styles to inputs
+        emailInput.classList.add('border-red-500');
+        passwordInput.classList.add('border-red-500');
+
+        // Insert error message before the submit button
+        const submitDiv = form.querySelector('div:has(input[type="submit"])');
+        if (submitDiv) {
+            form.insertBefore(errorEl, submitDiv);
+        } else {
+            // Fallback - insert at the end of the form
+            form.appendChild(errorEl);
+        }
+
+        console.log('Error message element added to DOM');
+    }
+
+    function clearError() {
+        const existingError = document.querySelector('#form-error');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Remove error styles from inputs
+        emailInput.classList.remove('border-red-500');
+        passwordInput.classList.remove('border-red-500');
+    }
+});
+
 document.getElementById('forgot-password-link').addEventListener('click', function(e) {
     e.preventDefault();
     document.getElementById('forgot-password-modal').classList.remove('hidden');
@@ -151,16 +248,13 @@ function disableButtonForSeconds(button, seconds) {
 }
 
 document.getElementById('sendOtpButton').addEventListener('click', function() {
-    // Get the email provided in the modal.
     let email = document.getElementById('reset-email').value;
     if (!email) {
         document.getElementById('messageDisplay').textContent = "Please enter your email.";
         document.getElementById('messageDisplay').classList.remove('hidden');
         return;
     }
-    // Disable send button for 30 seconds and start countdown
     disableButtonForSeconds(this, 30);
-    // Send AJAX request to trigger OTP sending
     fetch("{{ url_for('reset_password') }}", {
         method: "POST",
         headers: {'Content-Type': 'application/json'},
@@ -169,7 +263,6 @@ document.getElementById('sendOtpButton').addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
-            // After sending OTP, reveal the OTP input and submit button
             document.getElementById('otpInputDiv').classList.remove('hidden');
             document.getElementById('submitOtpDiv').classList.remove('hidden');
             document.getElementById('messageDisplay').textContent = data.message;
@@ -192,7 +285,6 @@ document.getElementById('submitOtpButton').addEventListener('click', function() 
         document.getElementById('messageDisplay').classList.remove('hidden');
         return;
     }
-    // Verify the OTP via AJAX
     fetch("{{ url_for('verify_otp') }}", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
@@ -201,7 +293,6 @@ document.getElementById('submitOtpButton').addEventListener('click', function() 
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Redirect to the reset password page where user can set a new password
             window.location.href = "{{ url_for('change_password') }}";
         } else {
             document.getElementById('messageDisplay').textContent = "Invalid OTP. Please try again.";
@@ -215,18 +306,18 @@ document.getElementById('submitOtpButton').addEventListener('click', function() 
 });
 
 function togglePasswordVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        const toggle = document.getElementById(inputId + '-toggle');
+    const input = document.getElementById(inputId);
+    const toggle = document.getElementById(inputId + '-toggle');
 
-        if (input.type === 'password') {
-            input.type = 'text';
-            toggle.classList.remove('bi-eye');
-            toggle.classList.add('bi-eye-slash');
-        } else {
-            input.type = 'password';
-            toggle.classList.remove('bi-eye-slash');
-            toggle.classList.add('bi-eye');
+    if (input.type === 'password') {
+        input.type = 'text';
+        toggle.classList.remove('bi-eye');
+        toggle.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        toggle.classList.remove('bi-eye-slash');
+        toggle.classList.add('bi-eye');
         }
-    }
+}
 </script>
-{% endblock %}
+{%endblock%}
