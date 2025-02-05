@@ -459,7 +459,7 @@ async def home():
             return redirect(url_for('home'))
 
     resumes = Resume.query.filter_by(user_id=current_user.id).order_by(Resume.id.desc()).all()
-    return render_template('home.html', resumes=resumes, page_type='mbnav')
+    return render_template('home.html', resumes=resumes, layout_type='authenticated')
 
 
 @app.route('/view_resume/<int:resume_id>')
@@ -507,7 +507,7 @@ async def roast_resume(resume_id):
         if action == 'regenerate':
             roast_response = await generate_roast(resume.extracted_text, resume.candidate_name)
             return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
-                                   resume_filename=resume.filename, page_type='mbnav')
+                                   resume_filename=resume.filename, layout_type='authenticated')
 
         elif action == 'save':
             roast_response = request.form.get('roast_response')
@@ -515,7 +515,7 @@ async def roast_resume(resume_id):
             db.session.commit()
             flash('Roast saved successfully!', 'success')  # Add a success flash message
             return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
-                                   resume_filename=resume.filename, page_type='mbnav')
+                                   resume_filename=resume.filename, layout_type='authenticated')
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
@@ -524,7 +524,7 @@ async def roast_resume(resume_id):
     roast_response = resume.roast_response if resume.roast_response else await generate_roast(resume.extracted_text,
                                                                                               resume.candidate_name)
     return render_template('roast.html', roast_response=roast_response, candidate_name=resume.candidate_name,
-                           resume_filename=resume.filename, page_type='mbnav')
+                           resume_filename=resume.filename, layout_type='authenticated')
 
 
 @app.route('/feedback/<int:resume_id>', methods=['GET', 'POST'])
@@ -537,7 +537,7 @@ async def feedback_resume(resume_id):
         if action == 'regenerate':
             feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, page_type='mbnav')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, layout_type='authenticated')
 
         elif action == 'save':
             feedback_response = request.form.get('feedback_response')
@@ -545,7 +545,7 @@ async def feedback_resume(resume_id):
             db.session.commit()
             flash('Feedback saved successfully!', 'success')  # Add a success flash message
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, page_type='mbnav')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, layout_type='authenticated')
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
@@ -554,7 +554,7 @@ async def feedback_resume(resume_id):
     feedback_response = resume.feedback_response if resume.feedback_response else await generate_feedback(
         resume.extracted_text, resume.candidate_name)
     return render_template('feedback.html', feedback_response=feedback_response, candidate_name=resume.candidate_name,
-                           resume_filename=resume.filename, page_type='mbnav')
+                           resume_filename=resume.filename, layout_type='authenticated')
 
 
 @app.route('/edit_resume/<int:resume_id>', methods=['GET', 'POST'])
@@ -562,7 +562,7 @@ async def edit_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
 
     if request.method == 'GET':
-        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name, page_type='mbnav')
+        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name, layout_type='authenticated')
 
     elif request.method == 'POST':
         content = request.json.get('content')
@@ -581,7 +581,7 @@ async def ats_analysis(resume_id=None):
         selected_resume = None
         if resume_id:
             selected_resume = Resume.query.get_or_404(resume_id)
-        return render_template('ats.html', resumes=resumes, selected_resume=selected_resume, page_type='mbnav')
+        return render_template('ats.html', resumes=resumes, selected_resume=selected_resume, layout_type='authenticated')
     elif request.method == 'POST':
         resume_id = request.form.get('resume_id')
         job_description = request.form.get('job_description')
@@ -608,7 +608,7 @@ async def ats_analysis(resume_id=None):
 @app.route('/cover_letter', methods=['GET'])
 def cover_letter_form():
     resumes = Resume.query.filter_by(user_id=current_user.id).all()
-    return render_template('cover_letter.html', resumes=resumes, page_type='mbnav')
+    return render_template('cover_letter.html', resumes=resumes, layout_type='authenticated')
 
 
 @app.route('/generate_cover_letter', methods=['POST'])
@@ -693,7 +693,7 @@ def profile():
             flash('An error occurred while updating profile', 'error')
             return redirect(url_for('profile'))
 
-    return render_template('profile.html', page_type='mbnav')
+    return render_template('profile.html', layout_type='authenticated')
 
 
 @app.route('/contact-us', methods=['GET', 'POST'])
@@ -723,12 +723,20 @@ def contact_us():
 
         return redirect(url_for('contact_us'))
 
-    return render_template('contactus.html', page_type='mbnav')
+    if current_user.is_authenticated:
+        layout_type = 'authenticated'
+    else:
+        layout_type = 'non-authenticated'
+    return render_template('contactus.html', layout_type=layout_type)
 
 
 @app.route('/support-us', methods=['GET', 'POST'])
 def support_us():
-    return render_template('supportus.html', page_type='mbnav')
+    if current_user.is_authenticated:
+        layout_type = 'authenticated'
+    else:
+        layout_type = 'non-authenticated'
+    return render_template('supportus.html', layout_type=layout_type)
 
 
 with app.app_context():
