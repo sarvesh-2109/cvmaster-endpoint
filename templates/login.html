@@ -20,9 +20,9 @@
                             <i class="bi bi-envelope text-gray-400"></i>
                         </div>
                         {{ form.email(
-                                class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
-                                placeholder="Enter your email"
-                            ) }}
+                            class="block w-full pl-10 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
+                            placeholder="Enter your email"
+                        ) }}
                     </div>
                 </div>
                 <div>
@@ -118,6 +118,69 @@
 </div>
 
 <script>
+// Add email existence validation
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.querySelector('input[name="email"]');
+    const emailInputDiv = emailInput.closest('div');
+    const form = emailInput.closest('form');
+
+    emailInput.addEventListener('blur', function() {
+        const email = this.value.trim();
+
+        // Basic email format validation first
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            displayEmailError('Please enter a valid email address', emailInputDiv);
+            return;
+        }
+
+        // Check email existence via AJAX
+        fetch("{{ url_for('check_email_exists') }}", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.exists) {
+                displayEmailError('No account found with this email', emailInputDiv);
+            } else {
+                clearEmailError(emailInputDiv);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking email:', error);
+        });
+    });
+
+    function displayEmailError(message, parentElement) {
+        // Remove any existing error first
+        clearEmailError(parentElement);
+
+        // Create error message element
+        const errorEl = document.createElement('p');
+        errorEl.textContent = message;
+        errorEl.id = 'email-error';
+        errorEl.className = 'text-red-600 text-sm mt-1';
+
+        // Add the error message to the parent element
+        parentElement.appendChild(errorEl);
+
+        // Add a red border to the input
+        emailInput.classList.add('border-red-500');
+    }
+
+    function clearEmailError(parentElement) {
+        const existingError = parentElement.querySelector('#email-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        emailInput.classList.remove('border-red-500');
+    }
+});
+
 document.getElementById('forgot-password-link').addEventListener('click', function(e) {
     e.preventDefault();
     document.getElementById('forgot-password-modal').classList.remove('hidden');
