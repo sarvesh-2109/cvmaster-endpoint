@@ -27,6 +27,7 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 import json
 from functools import wraps
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
@@ -262,33 +263,148 @@ def callback():
         return redirect(url_for("login"))
 
 
+def generate_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = RegistrationForm()
+    if request.method == 'GET':
+        return render_template('signup.html', form=form, layout_type='navbar')
+
+    # Handle POST request
     if request.method == 'POST':
-        if form.validate_on_submit():
-            username = form.username.data
-            email = form.email.data
-            password = form.password.data
+        print("Received data:", request.get_json())
+        data = request.get_json()
 
-            # Create new user
-            new_user = User(username=username, email=email)
-            new_user.set_password(password)
+        if not data:
+            return jsonify({
+                'status': 'error',
+                'message': 'No data received'
+            })
 
-            try:
-                db.session.add(new_user)
-                db.session.commit()
-                login_user(new_user)
-                flash('Signup successful!', 'success')
-                return redirect(url_for('home'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f'An error occurred: {str(e)}', 'error')
+        # Validate form data
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
 
-        # If form validation fails
-        return render_template('signup.html', form=form)
+        if not all([username, email, password]):
+            return jsonify({
+                'status': 'error',
+                'message': 'All fields are required.'
+            })
 
-    return render_template('signup.html', form=form, layout_type='navbar')
+        # Check if email already exists
+        if User.query.filter_by(email=email).first():
+            return jsonify({
+                'status': 'error',
+                'message': 'Email already exists.'
+            })
+
+        # Generate OTP
+        otp = generate_otp()
+
+        # Store signup data and OTP in session
+        session['signup_data'] = {
+            'username': username,
+            'email': email,
+            'password': password,
+            'otp': otp,
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        try:
+            # Create and send email
+            msg = Message('Verify your email',
+                          sender=app.config['MAIL_USERNAME'],
+                          recipients=[email])
+
+            msg.body = f'''To verify your email address, please use the following OTP:
+
+{otp}
+
+This OTP will expire in 10 minutes.
+If you did not make this request, please ignore this email.'''
+
+            mail.send(msg)
+
+            return jsonify({
+                'status': 'success',
+                'message': 'OTP has been sent to your email.'
+            })
+
+        except Exception as e:
+            print(f"Error sending email: {str(e)}")  # For debugging
+            return jsonify({
+                'status': 'error',
+                'message': 'Error sending verification email. Please try again.'
+            })
+
+
+@app.route('/verify_signup_otp', methods=['POST'])
+def verify_signup_otp():
+    data = request.get_json()
+    user_otp = data.get('otp')
+
+    if not user_otp:
+        return jsonify({
+            'status': 'error',
+            'message': 'OTP is required.'
+        })
+
+    signup_data = session.get('signup_data')
+    if not signup_data:
+        return jsonify({
+            'status': 'error',
+            'message': 'Signup session expired. Please try again.'
+        })
+
+    # Check if OTP has expired (10 minutes)
+    created_at = datetime.fromisoformat(signup_data['created_at'])
+    if datetime.utcnow() - created_at > timedelta(minutes=10):
+        session.pop('signup_data', None)
+        return jsonify({
+            'status': 'error',
+            'message': 'OTP has expired. Please try again.'
+        })
+
+    # Verify OTP
+    if user_otp != signup_data['otp']:
+        return jsonify({
+            'status': 'error',
+            'message': 'Invalid OTP. Please try again.'
+        })
+
+    try:
+        # Create new user
+        new_user = User(
+            username=signup_data['username'],
+            email=signup_data['email']
+        )
+        new_user.set_password(signup_data['password'])
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Log in the user
+        login_user(new_user)
+
+        # Clear signup session data
+        session.pop('signup_data', None)
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Account created successfully!'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating user: {str(e)}")  # For debugging
+        return jsonify({
+            'status': 'error',
+            'message': 'Error creating account. Please try again.'
+        })
 
 
 @app.route('/check_email_exists', methods=['POST'])
@@ -296,12 +412,11 @@ def check_email_exists():
     data = request.get_json()
     email = data.get('email')
 
-    # Check if email already exists in the database
-    existing_user = User.query.filter_by(email=email).first()
+    if not email:
+        return jsonify({'exists': False})
 
-    return jsonify({
-        'exists': existing_user is not None
-    })
+    user = User.query.filter_by(email=email).first()
+    return jsonify({'exists': bool(user)})
 
 
 @app.route('/login', methods=['GET', 'POST'])
