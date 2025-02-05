@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -67,57 +68,32 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="min-h-screen bg-gray-50 custom-scrollbar">
-    {% if layout_type == 'authenticated' %}
-        <!-- Mobile Navigation for Authenticated Users -->
-        <nav class="block lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-            <div class="max-w-7xl mx-auto px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
-                    </a>
-                    <button id="menuToggle" class="touch-manipulation">
-                        <i class="bi bi-list text-2xl"></i>
-                    </button>
+    {% if page_type == 'mbnav' %}
+        <!-- Mobile Navigation-->
+        <div class="lg:hidden">
+            <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between h-16 items-center">
+                        <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600">
+                            CvMaster
+                        </a>
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ url_for('profile') }}" class="text-gray-600">
+                                <i class="bi bi-person text-xl"></i>
+                            </a>
+                            <a href="{{ url_for('contact_us') }}" class="text-gray-600">
+                                <i class="bi bi-envelope text-xl"></i>
+                            </a>
+                            <a href="{{ url_for('support_us') }}" class="text-red-500">
+                                <i class="bi bi-heart text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
 
-        <!-- Mobile Sidebar for Authenticated Users -->
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm lg:hidden"></div>
-        <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:hidden">
-            <div class="flex flex-col h-full p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
-                        <i class="bi bi-x-lg text-2xl"></i>
-                    </button>
-                </div>
-                <div class="flex flex-col space-y-3">
-                    <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-house text-xl"></i>
-                        <span>Home</span>
-                    </a>
-                    <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-person text-xl"></i>
-                        <span>Profile</span>
-                    </a>
-                    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-envelope text-xl"></i>
-                        <span>Contact Us</span>
-                    </a>
-                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
-                        <i class="bi bi-heart text-xl text-red-500"></i>
-                        <span>Support Us</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-box-arrow-right text-xl"></i>
-                        <span>Log Out</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Desktop Sidebar for Authenticated Users -->
+        <!-- Desktop Sidebar for Home Page -->
         <nav class="hidden lg:block fixed top-0 left-0 h-screen w-72 bg-white shadow-lg">
             <div class="flex flex-col h-full p-6">
                 <div class="flex items-center justify-between mb-8">
@@ -150,76 +126,123 @@
             </div>
         </nav>
     {% else %}
-        <!-- Mobile Navigation for Non-Authenticated Users -->
-        <nav class="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-            <div class="max-w-7xl mx-auto px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
-                    </a>
-                    <button id="menuToggle" class="touch-manipulation lg:hidden">
-                        <i class="bi bi-list text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Mobile Sidebar for Non-Authenticated Users (only visible on mobile) -->
-        <div id="overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
-        <nav id="sidebar" class="sidebar lg:hidden bg-white shadow-lg custom-scrollbar">
-            <div class="flex flex-col h-full p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
-                        <i class="bi bi-x-lg text-2xl"></i>
-                    </button>
-                </div>
-                <div class="flex flex-col space-y-3">
-                    <a href="{{ url_for('login') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-box-arrow-in-right text-xl"></i>
-                        <span>Login</span>
-                    </a>
-                    <a href="{{ url_for('signup') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-person-plus text-xl"></i>
-                        <span>Sign Up</span>
-                    </a>
-                    <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
-                        <i class="bi bi-envelope text-xl"></i>
-                        <span>Contact Us</span>
-                    </a>
-                    <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
-                        <i class="bi bi-heart text-xl text-red-500"></i>
-                        <span>Support Us</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Desktop Navbar for Non-Authenticated Users -->
-        <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-            <div class="max-w-7xl mx-auto px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
-                    </a>
-                    <div class="flex items-center space-x-6">
-                        <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
-                        <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Support Us</a>
-                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Login</a>
-                        <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">Sign Up</a>
+        {% if layout_type == 'navbar' %}
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                <div class="max-w-7xl mx-auto px-8">
+                    <div class="flex justify-between h-16 items-center">
+                        <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                            CvMaster
+                        </a>
+                        <div class="flex items-center space-x-6">
+                            <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
+                            <a href="{{ url_for('support_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Support Us</a>
+                            <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Login</a>
+                            <a href="{{ url_for('signup') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">Sign Up</a>
+                        </div>
                     </div>
                 </div>
+            </nav>
+
+            <!-- Mobile Navigation -->
+            <div class="lg:hidden">
+                <nav class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                    <div class="max-w-7xl mx-auto px-8">
+                        <div class="flex justify-between h-16 items-center">
+                            <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                                CvMaster
+                            </a>
+                            <button id="menuToggle" class="touch-manipulation">
+                                <i class="bi bi-list text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+
+                <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
+
+                <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar">
+                    <div class="flex flex-col h-full p-6">
+                        <div class="flex items-center justify-between mb-8">
+                            <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                            <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
+                                <i class="bi bi-x-lg text-2xl"></i>
+                            </button>
+                        </div>
+                        <div class="flex flex-col space-y-3">
+                            <a href="{{ url_for('login') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-box-arrow-in-right text-xl"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="{{ url_for('signup') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-person-plus text-xl"></i>
+                                <span>Sign Up</span>
+                            </a>
+                            <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                                <i class="bi bi-envelope text-xl"></i>
+                                <span>Contact Us</span>
+                            </a>
+                            <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                                <i class="bi bi-heart text-xl text-red-500"></i>
+                                <span>Support Us</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
             </div>
-        </nav>
+        {% else %}
+            <!-- Sidebar Layout -->
+            <button id="menuToggle" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-3 rounded-lg shadow-lg touch-manipulation">
+                <i class="bi bi-list text-2xl"></i>
+            </button>
+
+            <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden backdrop-blur-sm"></div>
+
+            <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:fixed lg:w-72 lg:h-screen">
+                <div class="flex flex-col h-full p-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
+                        <button id="closeMenu" class="lg:hidden text-gray-500 hover:text-gray-700 p-2 touch-manipulation">
+                            <i class="bi bi-x-lg text-2xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col space-y-3">
+                        <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-house text-xl"></i>
+                            <span>Home</span>
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-person text-xl"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="{{ url_for('contact_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50 transition-all">
+                            <i class="bi bi-envelope text-xl"></i>
+                            <span>Contact Us</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-auto space-y-3">
+                        <a href="{{ url_for('support_us') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-red-50 transition-all">
+                            <i class="bi bi-heart text-xl text-red-500"></i>
+                            <span>Support Us</span>
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-gray-100 transition-all">
+                            <i class="bi bi-box-arrow-right text-xl"></i>
+                            <span>Log Out</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        {% endif %}
     {% endif %}
 
     <!-- Main Content -->
-    <main class="{% if layout_type == 'authenticated' %}lg:ml-72 pt-16 lg:pt-0{% else %}pt-16{% endif %} min-h-screen">
-        <div class="{% if layout_type == 'authenticated' %}px-4 lg:px-8{% else %}container mx-auto px-4 lg:px-8{% endif %} py-6">
-            {% block content %}{% endblock %}
-        </div>
+    <main class="{% if page_type == 'home' %}lg:ml-72 pt-16 lg:pt-0{% elif layout_type != 'navbar' %}lg:ml-72{% endif %} min-h-screen">
+        {% block content %}{% endblock %}
     </main>
 
+    {% block scripts %}
     <script>
         // Mobile menu functionality
         const menuToggle = document.getElementById('menuToggle');
@@ -257,5 +280,6 @@
             e.preventDefault();
         });
     </script>
+    {% endblock %}
 </body>
 </html>
