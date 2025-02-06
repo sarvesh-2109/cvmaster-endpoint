@@ -168,10 +168,6 @@ def landing():
     return render_template('landing.html', layout_type='navbar')
 
 
-app.config['GOOGLE_OAUTH_REDIRECT'] = os.environ.get('GOOGLE_OAUTH_REDIRECT',
-                                                     'http://localhost:5000/login/google/callback')
-
-
 @app.route("/login/google")
 def google_login():
     # Find out what URL to hit for Google login

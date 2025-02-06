@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleDropdown(button) {
         const dropdown = button.nextElementSibling;
         const allDropdowns = document.querySelectorAll('.dropdown-menu');
-        
+
         allDropdowns.forEach(menu => {
             if (menu !== dropdown) menu.style.display = 'none';
         });
-        
+
         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     }
 
@@ -70,14 +70,14 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('click', function(e) {
 
     const link = e.target.closest('a[href*="roast"], a[href*="feedback_resume"], a[href*="edit_resume"], a[href*="cover_letter"], a[href*="ats_analysis"], a[href*="home"], a[href*="feedback"]');
-    
+
     if (link) {
         e.preventDefault();
         const href = link.getAttribute('href');
-        
+
         const dropdown = link.closest('.dropdown-menu');
         if (dropdown) dropdown.style.display = 'none';
-        
+
         showLoading();
         window.location.href = href;
     }
