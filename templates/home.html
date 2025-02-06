@@ -1,148 +1,20 @@
 {% extends "base.html" %}
 
 {% block extra_css %}
-<style>
-    /* Resume card styles */
-    .resume-card {
-        transition: all 0.3s ease;
-        max-width: 100%;
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        background-color: #ffffff;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
-    }
-
-    .resume-card h3 {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        word-wrap: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        position: relative;
-    }
-
-    .resume-card h3:hover {
-        white-space: normal;
-        overflow: visible;
-        background-color: white;
-        z-index: 10;
-    }
-
-    .resume-card p {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 0.75rem;
-    }
-
-    .resume-card .actions {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    /* Grid adjustments */
-    .grid {
-        gap: 1rem;
-    }
-
-    /* Modal styles */
-    .modal-backdrop {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(4px);
-    }
-
-    .modal-content {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateY(-20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    /* Dropdown menu */
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        z-index: 60;
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        right: 0;
-        min-width: 160px;
-    }
-
-    /* Upload card adjustments */
-    .resume-card.hover-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-    }
-
-    .resume-card.hover-card .w-16 {
-        width: 3rem;
-        height: 3rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .instruction-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(4px);
-    }
-
-    /* Highlight animation for the three dots icon */
-    @keyframes pulseHighlight {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
-
-    .highlight-dots {
-        animation: pulseHighlight 1s ease-in-out;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 {% endblock %}
 
 {% block content %}
+
+<div id="loadingOverlay" class="upload-loading-overlay" style="display: none;">
+    <div class="upload-loading-spinner"></div>
+</div>
+
 <div class="w-full">
     <!-- Resume Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Create New Card -->
+
+        <!-- Upload Resume Card -->
         <div onclick="document.getElementById('resume_file').click()"
              class="resume-card hover-card p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-all">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
@@ -151,6 +23,7 @@
             <span class="text-blue-600 font-medium">Upload Resume</span>
         </div>
 
+        <!-- Rest of the existing code including the form and resume cards... -->
         <form id="uploadForm" action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data" class="contents">
             <input type="file" id="resume_file" name="file" accept=".pdf,.docx" onchange="this.form.submit()" class="hidden">
             <input type="hidden" name="candidate_name" value="{{ current_user.username }}">
@@ -238,131 +111,9 @@
     </div>
 </div>
 
-<script>
-    // Improved dropdown functionality with click outside handling
-    function toggleDropdown(button) {
-        const dropdown = button.nextElementSibling;
-        const allDropdowns = document.querySelectorAll('.dropdown-menu');
 
-        // Close all other dropdowns
-        allDropdowns.forEach(menu => {
-            if (menu !== dropdown) {
-                menu.style.display = 'none';
-            }
-        });
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 
-        // Toggle current dropdown
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-
-    // Delete modal functionality
-    let currentDeleteForm = null;
-
-    function showDeleteModal(form) {
-        currentDeleteForm = form;
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-        currentDeleteForm = null;
-    }
-
-    function confirmDeleteResume() {
-        if (currentDeleteForm) {
-            currentDeleteForm.submit();
-        }
-        closeDeleteModal();
-    }
-
-    // Prevent default form submission for delete forms
-    function confirmDelete() {
-        return false;
-    }
-
-    // Instruction modal functions
-    function showInstructionModal() {
-        const modal = document.getElementById('instructionModal');
-        modal.style.display = 'flex';
-        // Highlight all three dots buttons
-        document.querySelectorAll('.bi-three-dots').forEach(icon => {
-            icon.parentElement.classList.add('highlight-dots');
-        });
-    }
-
-    function closeInstructionModal() {
-        const modal = document.getElementById('instructionModal');
-        modal.style.display = 'none';
-        // Remove highlight from three dots buttons
-        document.querySelectorAll('.bi-three-dots').forEach(icon => {
-            icon.parentElement.classList.remove('highlight-dots');
-        });
-    }
-
-    // Initialize all event listeners when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle delete form submissions
-        const deleteForms = document.querySelectorAll('form[action*="delete_resume"]');
-        deleteForms.forEach(form => {
-            form.onsubmit = function(e) {
-                e.preventDefault();
-                showDeleteModal(this);
-            };
-        });
-
-        // Add handler for file upload
-        const uploadForm = document.getElementById('uploadForm');
-        const fileInput = document.getElementById('resume_file');
-
-        fileInput.addEventListener('change', function(e) {
-            if (this.files.length > 0) {
-                // Submit the form
-                uploadForm.submit();
-                // Store in sessionStorage that we just uploaded a file
-                sessionStorage.setItem('showInstructionModal', 'true');
-            }
-        });
-
-        // Check if we should show the instruction modal (after page reload)
-        if (sessionStorage.getItem('showInstructionModal') === 'true') {
-            showInstructionModal();
-            // Clear the flag
-            sessionStorage.removeItem('showInstructionModal');
-        }
-
-        // Close delete modal when clicking outside
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
-            }
-        });
-
-        // Close instruction modal when clicking outside
-        document.getElementById('instructionModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeInstructionModal();
-            }
-        });
-
-        // Add escape key handler for both modals and dropdowns
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
-                closeInstructionModal();
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
-            }
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.relative')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
-            }
-        });
-    });
-</script>
+{% endblock %}
 {% endblock %}
