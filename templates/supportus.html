@@ -1,52 +1,140 @@
-{# supportus.html #}
 {% extends "base.html" %}
 
 {% block title %}CvMaster{% endblock %}
 
 {% block extra_css %}
 <style>
-    html, body {
-        height: 100vh;
-        overflow: hidden;
+    /* Base styles */
+
+    .support-container {
+        min-height: 100vh;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .support-card {
+        width: 100%;
+        max-width: 1400px;
+        margin: 1rem auto;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .support-content {
+        padding: 2rem;
+    }
+
+    .qr-code-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .qr-code-image {
+        width: 192px;
+        height: 192px;
+        object-fit: contain;
+    }
+
+    .upi-container {
+        margin: 1rem auto;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        display: inline-block;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .support-container {
+            min-height: auto;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .support-content {
+            padding: 1rem;
+        }
+
+        .qr-code-image {
+            width: 160px;
+            height: 160px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+
+        .text-lg {
+            font-size: 1rem;
+            line-height: 1.5rem;
+        }
+    }
+
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        .support-content {
+            padding: 0.75rem;
+        }
+
+        .qr-code-image {
+            width: 140px;
+            height: 140px;
+        }
+
+        .list-decimal {
+            padding-left: 0.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="h-[calc(100vh-6rem)] lg:h-[calc(100vh-5rem)] flex items-center justify-center">
-    <div class="w-full max-w-7xl px-6">
-        <div class="bg-white p-8 rounded-xl shadow-sm">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+<div class="support-container">
+    <div class="support-card">
+        <div class="support-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Left side: Why Support Us -->
-                <div class="space-y-6">
+                <div class="space-y-4">
                     <h2 class="text-3xl font-bold text-blue-600">Support CvMaster</h2>
-                    <div class="bg-blue-50 p-8 rounded-lg">
-                        <h3 class="text-xl font-semibold text-blue-600 mb-4">Why Support Us?</h3>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-3">Why Support Us?</h3>
                         <div class="text-gray-700">
-                            <ol class="list-decimal list-inside space-y-4">
-                                <li class="pl-2 text-lg"><strong>Keep the website running</strong></li>
-                                <li class="pl-2 text-lg"><strong>Fuel platform upgrades</strong></li>
-                                <li class="pl-2 text-lg"><strong>Unlock future features</strong></li>
-                                <li class="pl-2 text-lg"><strong>Empower global job seekers</strong></li>
+                            <ol class="list-decimal list-inside space-y-3">
+                                <li class="text-lg"><strong>Keep the website running</strong></li>
+                                <li class="text-lg"><strong>Fuel platform upgrades</strong></li>
+                                <li class="text-lg"><strong>Unlock future features</strong></li>
+                                <li class="text-lg"><strong>Empower global job seekers</strong></li>
                             </ol>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right side: Payment Info -->
-                <div class="text-center space-y-6">
+                <div class="text-center space-y-4">
                     <h3 class="text-xl font-semibold text-gray-800">UPI Payment</h3>
                     <p class="text-gray-600 text-lg">Scan QR code or use UPI ID</p>
 
                     <!-- QR Code Image -->
-                    <div class="flex justify-center">
-                        <img src="{{ url_for('static', filename='qrcode.jpg') }}"
-                             alt="Payment QR Code"
-                             class="w-48 h-48 object-contain">
+                    <div class="qr-code-container">
+                        <img src="{{ url_for('static', filename='qrcode.jpg') }}" 
+                             alt="Payment QR Code" 
+                             class="qr-code-image">
                     </div>
 
                     <!-- UPI ID -->
-                    <div class="bg-gray-50 p-4 rounded-lg inline-block">
+                    <div class="upi-container">
                         <p class="text-gray-500 text-md mb-1">UPI ID:</p>
                         <p class="text-blue-600 font-semibold select-all text-lg">cvmaster@slice</p>
                     </div>
