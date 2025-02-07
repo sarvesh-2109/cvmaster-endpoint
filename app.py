@@ -204,15 +204,6 @@ def google_login():
 
 @app.route("/login/google/callback")
 def callback():
-    app.logger.info(f"Request URL: {request.url}")
-    app.logger.info(f"Request scheme: {request.scheme}")
-    app.logger.info(f"Request headers: {dict(request.headers)}")
-
-    if not client:
-        app.logger.error("No OAuth client configured")
-        flash("Google OAuth not configured", "error")
-        return redirect(url_for("login"))
-
     if not client:
         flash("Google OAuth not configured", "error")
         return redirect(url_for("login"))
