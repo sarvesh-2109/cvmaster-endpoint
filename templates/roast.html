@@ -11,12 +11,25 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
         }
     }
+
+    /* Adjust position for mobile view */
+    @media (max-width: 1023px) {
+        .max-w-4xl {
+            padding-top: 8px !important; /* Reduce top padding */
+        }
+    }
 </style>
 {% endblock %}
 
+
 {% block content %}
-<div class="max-w-4xl mx-auto pt-16 lg:pt-2">
-    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card mt-10">
+
+<div id="loadingOverlay" class="upload-loading-overlay" style="display: none;">
+    <div class="upload-loading-spinner"></div>
+</div>
+
+<div class="max-w-4xl mx-auto pt-16 lg:pt-0">
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card mt-0">
         <!-- Header -->
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-blue-600 mb-2">Resume Roast for {{ candidate_name }}</h1>
@@ -34,7 +47,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <form method="POST" class="space-y-4">
+        <form id="roastForm" method="POST" class="space-y-4">
             <input type="hidden" name="roast_response" value="{{ roast_response }}">
             <div class="flex flex-col lg:flex-row gap-3">
                 <button type="submit" name="action" value="regenerate"
@@ -55,7 +68,37 @@
             </div>
         </form>
 
-      
     </div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("JavaScript Loaded!"); // Debugging step
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const form = document.querySelector("form");
+
+        if (!form) {
+            console.error("Form not found!");
+            return;
+        }
+
+        function showLoading() {
+            console.log("Showing loading overlay..."); // Debugging step
+            loadingOverlay.style.display = "flex"; // Show loading spinner
+        }
+
+        form.addEventListener("submit", function (event) {
+            console.log("Form submitted!"); // Debugging step
+            const clickedButton = event.submitter;
+            if (clickedButton && clickedButton.value === "regenerate") {
+                console.log("Regenerate button clicked!"); // Debugging step
+                showLoading();
+            }
+        });
+    });
+</script>
+
 {% endblock %}
