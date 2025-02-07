@@ -28,8 +28,11 @@ import requests
 import json
 from functools import wraps
 from datetime import datetime, timedelta
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
 
 # Force HTTPS
@@ -201,6 +204,15 @@ def google_login():
 
 @app.route("/login/google/callback")
 def callback():
+    app.logger.info(f"Request URL: {request.url}")
+    app.logger.info(f"Request scheme: {request.scheme}")
+    app.logger.info(f"Request headers: {dict(request.headers)}")
+
+    if not client:
+        app.logger.error("No OAuth client configured")
+        flash("Google OAuth not configured", "error")
+        return redirect(url_for("login"))
+
     if not client:
         flash("Google OAuth not configured", "error")
         return redirect(url_for("login"))
