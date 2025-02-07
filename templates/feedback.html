@@ -42,12 +42,35 @@
             color: #000000;
             font-weight: 600;
         }
+
+
+            /* Laptop hover effects */
+    @media (min-width: 1024px) {
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    /* Adjust position for mobile view */
+    @media (max-width: 1023px) {
+        .max-w-4xl {
+            padding-top: 8px !important; /* Reduce top padding */
+        }
+    }
+    
 </style>
 {% endblock %}
 
 {% block content %}
+
+<div id="loadingOverlay" class="upload-loading-overlay" style="display: none;">
+    <div class="upload-loading-spinner"></div>
+</div>
+
+
 <div class="max-w-4xl mx-auto pt-16 lg:pt-2">
-    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card">
+    <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 hover-card mt-0">
         <!-- Header -->
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-blue-600 mb-2">Resume Feedback for {{ candidate_name }}</h1>
@@ -89,4 +112,25 @@
 
     </div>
 </div>
+{% block scripts %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const form = document.querySelector("form");
+
+        function showLoading() {
+            loadingOverlay.style.display = "flex"; // Show loading spinner
+        }
+
+        form.addEventListener("submit", function (event) {
+            const clickedButton = event.submitter;
+            if (clickedButton && clickedButton.value === "regenerate") {
+                showLoading();
+            }
+        });
+    });
+</script>
+
+{% endblock %}
 {% endblock %}
