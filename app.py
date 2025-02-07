@@ -30,6 +30,15 @@ from functools import wraps
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+
+# Force HTTPS
+@app.before_request
+def force_https():
+    if not request.is_secure and request.headers.get('X-Forwarded-Proto', 'http') == 'http':
+        return redirect(request.url.replace('http://', 'https://', 1), code=301)
+
+
 app.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
 
 # Initialize the database connection
@@ -58,7 +67,6 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 
 DEPLOYED_URL = os.environ.get('DEPLOYED_URL')
 app.config['GOOGLE_OAUTH_REDIRECT'] = f"{DEPLOYED_URL}/login/google/callback"
-
 
 if GOOGLE_CLIENT_ID:
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
@@ -164,7 +172,7 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def landing():
-    return render_template('landing.html', layout_type ='navbar')
+    return render_template('landing.html', layout_type='navbar')
 
 
 @app.route("/login/google")
@@ -648,7 +656,8 @@ async def feedback_resume(resume_id):
         if action == 'regenerate':
             feedback_response = await generate_feedback(resume.extracted_text, resume.candidate_name)
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, layout_type='authenticated')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename,
+                                   layout_type='authenticated')
 
         elif action == 'save':
             feedback_response = request.form.get('feedback_response')
@@ -656,7 +665,8 @@ async def feedback_resume(resume_id):
             db.session.commit()
             flash('Feedback saved successfully!', 'success')  # Add a success flash message
             return render_template('feedback.html', feedback_response=feedback_response,
-                                   candidate_name=resume.candidate_name, resume_filename=resume.filename, layout_type='authenticated')
+                                   candidate_name=resume.candidate_name, resume_filename=resume.filename,
+                                   layout_type='authenticated')
 
         elif action == 'back_to_home':
             return redirect(url_for('home'))
@@ -673,7 +683,8 @@ async def edit_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
 
     if request.method == 'GET':
-        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name, layout_type='authenticated')
+        return render_template('edit_resume.html', resume_id=resume_id, candidate_name=resume.candidate_name,
+                               layout_type='authenticated')
 
     elif request.method == 'POST':
         content = request.json.get('content')
@@ -692,7 +703,8 @@ async def ats_analysis(resume_id=None):
         selected_resume = None
         if resume_id:
             selected_resume = Resume.query.get_or_404(resume_id)
-        return render_template('ats.html', resumes=resumes, selected_resume=selected_resume, layout_type='authenticated')
+        return render_template('ats.html', resumes=resumes, selected_resume=selected_resume,
+                               layout_type='authenticated')
     elif request.method == 'POST':
         resume_id = request.form.get('resume_id')
         job_description = request.form.get('job_description')
@@ -853,4 +865,3 @@ def support_us():
 with app.app_context():
     if not inspect(db.engine).get_table_names():  # Check if there are any tables
         db.create_all()
-
