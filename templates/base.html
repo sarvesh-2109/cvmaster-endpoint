@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='logo1.jpg') }}">
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -63,6 +65,10 @@
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f1f1f1;
         }
+
+        .georgia-font {
+    font-family: Georgia, serif;
+}
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -72,8 +78,13 @@
         <nav class="block lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-8">
                 <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
+                    <a href="{{ url_for('home') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
                     </a>
                     <button id="menuToggle" class="touch-manipulation">
                         <i class="bi bi-list text-2xl"></i>
@@ -87,8 +98,14 @@
         <nav id="sidebar" class="sidebar bg-white shadow-lg custom-scrollbar lg:hidden">
             <div class="flex flex-col h-full p-6">
                 <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
+                    <a href="{{ url_for('home') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
+                    </a>                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
                         <i class="bi bi-x-lg text-2xl"></i>
                     </button>
                 </div>
@@ -121,8 +138,15 @@
         <nav class="hidden lg:block fixed top-0 left-0 h-screen w-72 bg-white shadow-lg">
             <div class="flex flex-col h-full p-6">
                 <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600">CvMaster</a>
-                </div>
+                    <a href="{{ url_for('home') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
+                    </a>
+                    </div>
                 <div class="flex flex-col space-y-3">
                     <a href="{{ url_for('home') }}" class="nav-link flex items-center space-x-3 text-gray-700 p-4 rounded-lg hover:bg-blue-50">
                         <i class="bi bi-house text-xl"></i>
@@ -154,8 +178,13 @@
         <nav class="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-8">
                 <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
+                    <a href="{{ url_for('landing') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
                     </a>
                     <button id="menuToggle" class="touch-manipulation lg:hidden">
                         <i class="bi bi-list text-2xl"></i>
@@ -169,8 +198,15 @@
         <nav id="sidebar" class="sidebar lg:hidden bg-white shadow-lg custom-scrollbar">
             <div class="flex flex-col h-full p-6">
                 <div class="flex items-center justify-between mb-8">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">CvMaster</a>
-                    <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
+                    <a href="{{ url_for('landing') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
+                    </a>
+                                        <button id="closeMenu" class="text-gray-500 hover:text-gray-700 p-2 touch-manipulation absolute top-4 right-4 z-50">
                         <i class="bi bi-x-lg text-2xl"></i>
                     </button>
                 </div>
@@ -199,8 +235,13 @@
         <nav class="hidden lg:block fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-8">
                 <div class="flex justify-between h-16 items-center">
-                    <a href="{{ url_for('landing') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                        CvMaster
+                    <a href="{{ url_for('landing') }}" class="flex items-center space-x-0">
+                        <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="CvMaster Logo" class="h-12">
+                        <strong>
+                        <span class="text-2xl font-candara text-black-700 hover:text-black-600 transition-colors">
+                            CvMaster
+                        </span>
+                    </strong>
                     </a>
                     <div class="flex items-center space-x-6">
                         <a href="{{ url_for('contact_us') }}" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact Us</a>
@@ -211,6 +252,8 @@
                 </div>
             </div>
         </nav>
+
+
     {% endif %}
 
     <!-- Main Content -->

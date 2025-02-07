@@ -2,77 +2,244 @@
 
 {% block title %}CvMaster{% endblock %}
 
+{% block extra_css %}
+<style>
+    .half-br {
+        display: block;
+        margin-bottom: 0.5em;
+    }
+    
+    .feature-card {
+        transition: all 0.3s ease;
+        min-height: 250px;
+        width: 100%;
+        max-width: 750px;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Features section container */
+    .features-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        overflow: visible;
+    }
+    
+    /* Adjusted positioning for left cards */
+    .card-left {
+        margin-right: auto;
+        margin-left: 0;
+        transform: translateX(-1px);
+    }
+    
+    /* Adjusted positioning for right cards */
+    .card-right {
+        margin-left: auto;
+        margin-right: 0;
+        transform: translateX(-1px);
+    }
+    
+    /* Logo styles */
+    .logo-container {
+    width: 100%;
+    max-width: 600px;  /* Much bigger for all views */
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.logo-image {
+    width: 100%;
+    height: auto;
+    max-height: 600px;  /* Much bigger for all views */
+    object-fit: contain;
+}
+    
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+
+        .logo-container {
+        max-width: 400px;  /* Still big but slightly smaller for mobile */
+    }
+
+    .logo-image {
+        max-height: 400px;
+    }
+
+        .card-left, .card-right {
+            margin-left: auto;
+            margin-right: auto;
+            transform: none;
+        }
+        
+        .feature-card {
+            width: calc(100% - 32px);
+            padding: 16px;
+        }
+    
+        /* Adjust feature card layout for mobile */
+        .feature-card .flex {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+        }
+    
+        .feature-card .flex-1 {
+            width: 100%;
+        }
+    
+        /* Responsive text sizing */
+        h1 {
+            font-size: 1.875rem; /* text-3xl */
+            line-height: 2.25rem;
+        }
+    
+        p.text-xl {
+            font-size: 1.125rem; /* text-lg */
+            line-height: 1.75rem;
+        }
+    
+        /* Adjust icon container size for mobile */
+        .w-24.h-24 {
+            width: 3rem;
+            height: 3rem;
+        }
+    
+        .text-5xl {
+            font-size: 1.875rem;
+        }
+    }
+    
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        .logo-container {
+            max-width: 300PX; /* Smaller for very small screens */
+        }
+    
+        .logo-image {
+            max-height: 300PX;
+        }
+    }
+    </style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-24 pb-16">
+<div class="min-h-screen bg-gradient-to-b">
     <!-- Hero Section -->
-    <div class="text-center pt-16 lg:pt-24">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl tracking-tight font-extrabold text-gray-900">
-            Welcome to <span class="text-blue-600">CvMaster</span>
-        </h1>
-        <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-600">
-            Your go-to platform for creating and optimizing resumes! Get noticed by employers with tailored content and layout.
-        </p>
-        <div class="mt-8">
-            <a href="{{ url_for('signup') }}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transition duration-200">
+    <div class="container mx-auto px-4 pt-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="logo-container">
+                <a href="{{ url_for('landing') }}">
+                    <img src="{{ url_for('static', filename='CvMasterLogo.jpg') }}" 
+                         alt="CvMaster Logo" 
+                         class="logo-image mb-8">
+                </a>
+            </div>
+            
+            <h1 class="text-4xl font-georgia text-gray-900 mb-6">
+                Ready to build your professional legacy?
+                        </h1>
+            
+            <p class="text-xl font-georgia text-gray-600 mb-8">
+                Upload your resume for instant AI-powered analysis, personalized feedback, and a custom cover letter that showcases your unique strengths.
+                <br><span class="half-br"></span>
+                Start editing and watch the interview requests roll in!
+            </p>
+
+            <a href="{{ url_for('signup') }}" 
+               class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
                 Get Started
             </a>
         </div>
     </div>
-</div>
 
     <!-- Features Section -->
-    <div class="py-16">
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <!-- Feature 1 -->
-            <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <i class="bi bi-file-earmark-text text-2xl text-blue-600"></i>
+    <div class="w-full px-0 py-24 overflow-hidden"> <!-- Added overflow-hidden -->
+        <div class="w-full mx-0 px-0 space-y-16"> <!-- Full width with no margins -->
+            <!-- Resume Roasting - Left -->
+            <div class="feature-card bg-white p-8 rounded-xl shadow-sm card-left">
+                <div class="flex items-start gap-8"> <!-- Increased gap -->
+                    <div class="w-24 h-24 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-fire text-5xl text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-semibold text-gray-900 mb-4">Resume Roasting</h2>
+                        <p class="text-gray-600 text-xl leading-relaxed">Get brutally honest feedback on your resume from AI. Identify weaknesses and receive actionable suggestions for improvement.</p>
+                    </div>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-3">Professional Resume Builder</h2>
-                <p class="text-gray-600">Create stunning resumes optimized for Applicant Tracking Systems (ATS). Stand out from the crowd with perfectly formatted content.</p>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <i class="bi bi-graph-up text-2xl text-blue-600"></i>
+            <!-- ATS Optimization - Right -->
+            <div class="feature-card bg-white p-8 rounded-xl shadow-sm card-right">
+                <div class="flex items-start gap-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-robot text-5xl text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-semibold text-gray-900 mb-4">ATS Optimization</h2>
+                        <p class="text-gray-600 text-xl leading-relaxed">Ensure your resume passes Applicant Tracking Systems with our advanced analysis and formatting recommendations.</p>
+                    </div>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-3">ATS Analysis</h2>
-                <p class="text-gray-600">Get instant feedback on your resume's ATS compatibility. Improve your chances of landing interviews with data-driven recommendations.</p>
             </div>
 
-            <!-- Feature 3 -->
-            <div class="hover-card bg-white p-6 rounded-xl shadow-sm">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <i class="bi bi-lightning text-2xl text-blue-600"></i>
+            <!-- Expert Feedback - Left -->
+            <div class="feature-card bg-white p-8 rounded-xl shadow-sm card-left">
+                <div class="flex items-start gap-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-chat-square-text text-5xl text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-semibold text-gray-900 mb-4">Expert Feedback</h2>
+                        <p class="text-gray-600 text-xl leading-relaxed">Receive detailed, professional feedback on content, structure, and impact of your resume from our AI analysis.</p>
+                    </div>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-3">Easy to Use</h2>
-                <p class="text-gray-600">Our intuitive interface makes creating and editing resumes a breeze. Download, share, and update your resumes with just a few clicks.</p>
             </div>
 
-                     
-        </div>
-        </div>
-    </div>
+            <!-- Resume Editing - Right -->
+            <div class="feature-card bg-white p-8 rounded-xl shadow-sm card-right">
+                <div class="flex items-start gap-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-pencil-square text-5xl text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-semibold text-gray-900 mb-4">Resume Editing</h2>
+                        <p class="text-gray-600 text-xl leading-relaxed">Smart editing tools to perfect your resume's content, formatting, and style. Make quick updates and see real-time improvements.</p>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Footer -->
-    <footer class="border-t border-gray-200 mt-16">
-        <div class="max-w-7xl mx-auto py-8">
-            <div class="text-center">
-                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-2">
-                    <p >Made by :</p> <a href="https://in.linkedin.com/in/ameykadam2231" target="_blank"
-                    class="text-blue-600 font-medium hover:underline">
-                    Amey Kadam  
-                </a>
-                <p>and</p>
-                <a href="https://in.linkedin.com/in/sarvesh-mhatre-475859242" target="_blank"
-                    class="text-blue-600 font-medium hover:underline">
-                    Sarvesh Mhatre  
-                </a>
+            <!-- Cover Letter Assistant - Left -->
+            <div class="feature-card bg-white p-8 rounded-xl shadow-sm card-left">
+                <div class="flex items-start gap-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-envelope-paper text-5xl text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-semibold text-gray-900 mb-4">Cover Letter Assistant</h2>
+                        <p class="text-gray-600 text-xl leading-relaxed">Generate and customize compelling cover letters that complement your resume and highlight your unique value proposition.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
-</div>
+    </div>
+
+<!-- Footer -->
+<footer class="border-t border-gray-200 py-8 mt-16">
+    <div class="container mx-auto px-4 text-center">
+        <div class="flex flex-col items-center gap-2">
+            <div class="text-gray-600">
+                Made by: 
+                <a href="https://in.linkedin.com/in/ameykadam2231" class="text-blue-600 hover:underline">Amey</a>
+                and
+                <a href="https://in.linkedin.com/in/sarvesh-mhatre-475859242" class="text-blue-600 hover:underline">Sarvesh</a>
+            </div>
+        </div>
+    </div>
+</footer>
 {% endblock %}
