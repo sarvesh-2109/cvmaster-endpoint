@@ -127,7 +127,7 @@ async def get_ats_chain(job_description):
 
     """
 
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+    model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0.7)
     prompt = PromptTemplate(template=prompt_template, input_variables=["job_description", "context"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 

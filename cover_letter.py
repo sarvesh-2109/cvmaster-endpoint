@@ -84,7 +84,7 @@ async def get_cover_letter_chain():
     Cover Letter:
     """
 
-    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+    model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0.7)
     prompt = PromptTemplate(template=prompt_template,
                             input_variables=["context", "job_description", "company_name", "position_name",
                                              "recipient_name","platform_name", "candidate_name"])
