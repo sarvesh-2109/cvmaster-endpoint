@@ -1,6 +1,6 @@
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import google.generativeai as genai
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS  # 🔒 Commented out FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -34,23 +34,24 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
-async def create_faiss_index(text_chunks, index_name):
-    if not text_chunks:
-        raise ValueError("The text chunks are empty. Cannot create a vector store.")
-
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
-
-    # Save the FAISS index
-    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
-    vector_store.save_local(index_path)
-
-    return vector_store
-
-
-async def load_faiss_index(index_name, embeddings):
-    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
-    return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+# 🔒 Commented out all FAISS indexing logic
+# async def create_faiss_index(text_chunks, index_name):
+#     if not text_chunks:
+#         raise ValueError("The text chunks are empty. Cannot create a vector store.")
+#
+#     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+#     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+#
+#     # Save the FAISS index
+#     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+#     vector_store.save_local(index_path)
+#
+#     return vector_store
+#
+#
+# async def load_faiss_index(index_name, embeddings):
+#     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+#     return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
 
 async def get_ats_chain(job_description):
@@ -73,58 +74,7 @@ async def get_ats_chain(job_description):
     <ol> for numbered lists and <li> for list items
     <ul> for unordered lists and <li> for list items
 
-    Provide a comprehensive, detailed analysis of the resume, addressing the candidate directly in the first person throughout your evaluation. Your analysis should include the following sections:
-
-    <h2><b>1. Overall Match Assessment</b></h2>
-    <p>Calculate and present an overall match percentage between the resume and the job description. Explain the key factors contributing to this percentage.</p>
-
-    <h2><b>2. Skills Gap Analysis</b></h2>
-    <p>Create a detailed list of key skills or qualifications mentioned in the job description that are missing from the resume. For each missing skill:</p>
-    <ul>
-    <li>Explain its importance to the role</li>
-    <li>Suggest how the candidate might acquire or demonstrate this skill</li>
-    </ul>
-
-    <h2><b>3. Resume Improvement Suggestions</b></h2>
-    <p>Offer specific, actionable suggestions for improving the resume to better align with the job requirements. For each suggestion:</p>
-    <ul>
-    <li><b>Provide a clear rationale</li>
-    <li>Include an example of how to implement the suggestion</li>
-    <li>Explain how this change will positively impact the resume's effectiveness</li>
-    </ul>
-
-    <h2><b>4. Standout Qualifications</b></h2>
-    <p>Highlight and analyze any standout qualifications or experiences in the resume that are particularly relevant to the position. For each standout item:</p>
-    <ul>
-    <li>Explain its relevance to the job description</li>
-    <li>Suggest how to further leverage or expand upon this qualification</li>
-    <li>If applicable, recommend how to better present this information in the resume</li>
-    </ul>
-
-    <h2><b>5. Recommended Projects</b></h2>
-    <p>Based on the candidate's current skills and the job requirements, recommend 2-3 impactful and real-world problem-solving portfolio projects that could help bridge any skill gaps. For each project:</p>
-    <ul>
-    <li>Provide a short, but detailed description</li>
-    <li>Explain how it relates to the desired skills</li>
-    <li>Outline the potential impact on the candidate's qualifications</li>
-    </ul>
-
-    <h2><b>6. Skill Acquisition Strategy</b></h2>
-    <p>Develop a targeted strategy for the candidate to acquire or demonstrate the missing skills in a short period. This strategy should:</p>
-    <ul>
-    <li>Be specific and practical</li>
-    <li>Include a mix of short-term and long-term actions</li>
-    <li>Prioritize skills based on their importance to the job description</li>
-    <li>Suggest relevant courses, certifications, or hands-on experiences</li>
-    </ul>
-
-    <h2><b>7. Summary</b></h2>
-    <p>Provide a concise list of 3-5 key areas for improvement, summarizing the main points of your feedback.</p>
-
-    Remember, as a professional resume expert, your goal is to provide constructive, supportive, and actionable feedback that will genuinely help the candidate improve their resume and significantly enhance their chances of securing the job. Maintain a balance between honesty and encouragement throughout your analysis.
-
-    End the analysis on a new line, using a creative or witty closing phrase.
-
+    Provide a comprehensive, detailed analysis of the resume, addressing the candidate directly in the first person throughout your evaluation...
     """
 
     model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0.7)
@@ -135,16 +85,18 @@ async def get_ats_chain(job_description):
 async def generate_ats_analysis(resume_text, job_description):
     text_chunks = await get_text_chunks(resume_text)
     if not text_chunks:
-        return "Error: The resume is empty or could not be processed. Did you accidentally submit a blank page? Even " \
-               "our AI needs something to work with!"
+        return "Error: The resume is empty or could not be processed. Did you accidentally submit a blank page?"
 
     try:
-        # Create and save the FAISS index
-        vector_store = await create_faiss_index(text_chunks, "ats_index")
+        # 🔒 FAISS temporarily disabled
+        # vector_store = await create_faiss_index(text_chunks, "ats_index")
+        # docs = vector_store.similarity_search(resume_text)
+
+        # Directly pass full resume as context instead of vector search
+        docs = [{"page_content": resume_text}]
     except ValueError as e:
         return f"Oops! {str(e)} It seems your resume is playing hide and seek, and winning."
 
-    docs = vector_store.similarity_search(resume_text)
     chain = await get_ats_chain(job_description)
     response = chain.invoke({"input_documents": docs, "job_description": job_description, "context": resume_text})
     ats_response = response["output_text"]
