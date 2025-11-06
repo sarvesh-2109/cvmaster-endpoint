@@ -1,6 +1,6 @@
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import google.generativeai as genai
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS  # Commented out FAISS import
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -34,6 +34,8 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
+# --- FAISS CODE COMMENTED OUT ---
+"""
 async def create_faiss_index(text_chunks, index_name):
     if not text_chunks:
         raise ValueError("The text chunks are empty. Cannot create a vector store.")
@@ -51,6 +53,8 @@ async def create_faiss_index(text_chunks, index_name):
 async def load_faiss_index(index_name, embeddings):
     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
     return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+"""
+# --- END OF COMMENTED FAISS CODE ---
 
 
 async def get_feedback_chain(candidate_name):
@@ -131,6 +135,8 @@ async def generate_feedback(resume_text, candidate_name):
     if not text_chunks:
         return "Error: The document is empty or could not be processed."
 
+    # --- FAISS FUNCTIONALITY REMOVED ---
+    """
     try:
         # Create and save the FAISS index
         vector_store = await create_faiss_index(text_chunks, "feedback_index")
@@ -138,6 +144,9 @@ async def generate_feedback(resume_text, candidate_name):
         return str(e)
 
     docs = vector_store.similarity_search(resume_text)
+    """
+    # Instead of using FAISS, use text_chunks directly:
+    docs = text_chunks
 
     chain = await get_feedback_chain(candidate_name)
     response = chain.invoke({"input_documents": docs, "context": resume_text})
