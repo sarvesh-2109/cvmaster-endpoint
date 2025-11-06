@@ -1,6 +1,6 @@
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings  # Still imported, but unused
 import google.generativeai as genai
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS  # 🔒 FAISS temporarily disabled
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -35,18 +35,24 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
-async def create_faiss_index(text_chunks, index_name):
-    if not text_chunks:
-        raise ValueError("The text chunks are empty. Cannot create a vector store.")
-
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
-
-    # Save the FAISS index
-    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
-    vector_store.save_local(index_path)
-
-    return vector_store
+# 🔒 FAISS-based indexing commented out
+# async def create_faiss_index(text_chunks, index_name):
+#     if not text_chunks:
+#         raise ValueError("The text chunks are empty. Cannot create a vector store.")
+#
+#     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+#     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+#
+#     # Save the FAISS index
+#     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+#     vector_store.save_local(index_path)
+#
+#     return vector_store
+#
+#
+# async def load_faiss_index(index_name, embeddings):
+#     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
+#     return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
 
 async def get_conversational_chain(candidate_name):
@@ -90,11 +96,6 @@ async def get_conversational_chain(candidate_name):
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
 
-async def load_faiss_index(index_name, embeddings):
-    index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
-    return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
-
-
 async def generate_roast(resume_text, candidate_name):
     text_chunks = await get_text_chunks(resume_text)
 
@@ -102,12 +103,14 @@ async def generate_roast(resume_text, candidate_name):
         return "Error: The document is empty or could not be processed."
 
     try:
-        # Create and save the FAISS index
-        vector_store = await create_faiss_index(text_chunks, "roast_index")
+        # 🔒 FAISS temporarily disabled
+        # vector_store = await create_faiss_index(text_chunks, "roast_index")
+        # docs = vector_store.similarity_search(resume_text)
+
+        # Instead, use the full resume text directly as context
+        docs = [{"page_content": resume_text}]
     except ValueError as e:
         return str(e)
-
-    docs = vector_store.similarity_search(resume_text)
 
     chain = await get_conversational_chain(candidate_name)
     response = chain.invoke({"input_documents": docs, "context": resume_text})
