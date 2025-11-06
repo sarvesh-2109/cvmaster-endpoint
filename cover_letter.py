@@ -1,6 +1,6 @@
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import google.generativeai as genai
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS  # Commented out FAISS import
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -21,6 +21,8 @@ async def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 
+# --- FAISS CODE COMMENTED OUT ---
+"""
 async def create_faiss_index(text_chunks, index_name):
     if not text_chunks:
         raise ValueError("The text chunks are empty. Cannot create a vector store.")
@@ -38,6 +40,8 @@ async def load_faiss_index(index_name):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     index_path = os.path.join(FAISS_INDEX_DIR, f"{index_name}.faiss")
     return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+"""
+# --- END OF COMMENTED FAISS CODE ---
 
 
 async def get_cover_letter_chain():
@@ -85,13 +89,24 @@ async def get_cover_letter_chain():
     """
 
     model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0.7)
-    prompt = PromptTemplate(template=prompt_template,
-                            input_variables=["context", "job_description", "company_name", "position_name",
-                                             "recipient_name","platform_name", "candidate_name"])
+    prompt = PromptTemplate(
+        template=prompt_template,
+        input_variables=[
+            "context",
+            "job_description",
+            "company_name",
+            "position_name",
+            "recipient_name",
+            "platform_name",
+            "candidate_name"
+        ]
+    )
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
 
 async def generate_cover_letter(resume_text, job_description, company_name, position_name, recipient_name, platform_name, candidate_name):
+    # --- FAISS FUNCTIONALITY REMOVED ---
+    """
     # Create or load the FAISS index for the resume
     resume_chunks = await get_text_chunks(resume_text)
     try:
@@ -101,6 +116,10 @@ async def generate_cover_letter(resume_text, job_description, company_name, posi
 
     # Perform similarity search to get relevant resume content
     docs = vector_store.similarity_search(job_description)
+    """
+    # Instead of using FAISS, just use text chunks directly
+    resume_chunks = await get_text_chunks(resume_text)
+    docs = resume_chunks
 
     # Generate the cover letter
     chain = await get_cover_letter_chain()
